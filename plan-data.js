@@ -7,15 +7,16 @@ window.HOUSE = {
   "rooms": [
     {"id": "living-room", "kind": "room", "poly": [[0,0],[158,0],[158,235],[0,235]], "label": [79,118], "lines": ["Living", "Room"]},
     {"id": "foyer", "kind": "room", "poly": [[158,126],[248,126],[248,235],[158,235]], "label": [203,180], "lines": ["Foyer"]},
-    {"id": "hall-bathroom", "kind": "room", "poly": [[158,0],[200,0],[200,28],[262,28],[262,86],[238,86],[238,100],[158,100]], "label": [200,62], "lines": ["Hall", "Bath"]},
+    {"id": "hall-bathroom", "kind": "room", "poly": [[158,0],[200,0],[200,28],[238,28],[238,100],[158,100]], "label": [200,62], "lines": ["Hall", "Bath"]},
     {"id": "coat", "kind": "other", "poly": [[158,100],[238,100],[238,126],[158,126]]},
     {"id": "hallway", "kind": "room", "poly": [[120,-51],[262,-51],[262,0],[120,0]], "label": [227,-25], "lines": ["Hallway"], "axis": 0},
-    {"id": "hcl1", "kind": "other", "poly": [[176,-77],[224,-77],[224,-51],[176,-51]]},
+    {"id": "hcl1", "kind": "other", "poly": [[176,-77],[228,-77],[228,-51],[176,-51]]},
     {"id": "primary-bedroom", "kind": "room", "poly": [[-96,-216],[120,-216],[120,0],[-96,0]], "label": [12,-108], "lines": ["Primary", "Bedroom"]},
-    {"id": "primary-bathroom", "kind": "room", "poly": [[120,-216],[248,-216],[248,-77],[206,-77],[206,-108],[172,-142],[120,-142]], "label": [184,-200], "lines": ["Primary", "Bath"]},
-    {"id": "primary-closet", "kind": "room", "poly": [[120,-142],[172,-142],[206,-108],[206,-77],[176,-77],[176,-51],[120,-51]], "label": [160,-98], "lines": ["Primary", "Closet"], "short": ["Closet"]},
-    {"id": "bedroom-2", "kind": "room", "poly": [[248,-215],[404,-215],[404,-66],[344,-66],[344,-51],[224,-51],[224,-77],[248,-77]], "label": [326,-133], "lines": ["Bedroom 2"], "short": ["Bedroom", "2"]},
+    {"id": "primary-bathroom", "kind": "room", "poly": [[120,-216],[228,-216],[228,-77],[192,-77],[192,-108],[158,-142],[120,-142]], "label": [184,-200], "lines": ["Primary", "Bath"]},
+    {"id": "primary-closet", "kind": "room", "poly": [[120,-142],[158,-142],[192,-108],[192,-77],[176,-77],[176,-51],[120,-51]], "label": [160,-98], "lines": ["Primary", "Closet"], "short": ["Closet"]},
+    {"id": "bedroom-2", "kind": "room", "poly": [[228,-215],[404,-215],[404,-66],[344,-66],[344,-51],[228,-51]], "label": [326,-133], "lines": ["Bedroom 2"], "short": ["Bedroom", "2"]},
     {"id": "bedroom-3", "kind": "room", "poly": [[262,-51],[344,-51],[344,-36],[404,-36],[404,126],[262,126]], "label": [333,60], "lines": ["Bedroom 3"], "short": ["Bedroom", "3"]},
+    {"id": "b3closet", "kind": "other", "poly": [[238,28],[262,28],[262,126],[238,126]]},
     {"id": "b2closet", "kind": "other", "poly": [[344,-66],[404,-66],[404,-36],[344,-36]]},
     {"id": "hcl2", "kind": "other", "poly": [[200,0],[262,0],[262,28],[200,28]]},
     {"id": "dining-area", "kind": "room", "poly": [[-138,235],[60,235],[60,385],[-138,385]], "label": [-40,310], "lines": ["Dining", "Area"], "short": ["Dining"]},
@@ -43,8 +44,8 @@ window.HOUSE = {
     {"type": "bifold", "a": [187,126], "b": [233,126], "side": 1, "hinge": "a", "ext": false},
     {"type": "door", "a": [120,-44], "b": [120,-12], "side": -1, "hinge": "a", "ext": false},
     {"type": "door", "a": [164,0], "b": [196,0], "side": 1, "hinge": "b", "ext": false},
-    {"type": "double", "a": [178,-51], "b": [222,-51], "side": 1, "hinge": "a", "ext": false},
-    {"type": "door", "a": [226,-51], "b": [258,-51], "side": -1, "hinge": "a", "ext": false},
+    {"type": "double", "a": [179,-51], "b": [225,-51], "side": 1, "hinge": "a", "ext": false},
+    {"type": "door", "a": [229,-51], "b": [261,-51], "side": -1, "hinge": "a", "ext": false},
     {"type": "double", "a": [204,0], "b": [258,0], "side": -1, "hinge": "a", "ext": false},
     {"type": "door", "a": [262,-37], "b": [262,-5], "side": 1, "hinge": "a", "ext": false},
     {"type": "window", "a": [-96,-170], "b": [-96,-134], "side": 1, "hinge": "a", "ext": true},
@@ -71,7 +72,7 @@ window.HOUSE = {
     {"type": "door", "a": [418,605], "b": [454,605], "side": -1, "hinge": "a", "ext": true},
     {"type": "window", "a": [298,605], "b": [337,605], "side": -1, "hinge": "a", "ext": true},
     {"type": "door", "a": [216,542], "b": [216,578], "side": -1, "hinge": "b", "ext": false},
-    {"type": "double", "a": [172,-142], "b": [206,-108], "side": -1, "hinge": "a", "ext": false},
+    {"type": "double", "a": [158,-142], "b": [192,-108], "side": -1, "hinge": "a", "ext": false},
     {"type": "double", "a": [350,-66], "b": [398,-66], "side": -1, "hinge": "a", "ext": false}
   ],
   "fixtures": [
@@ -84,8 +85,7 @@ window.HOUSE = {
     {"cls": "", "poly": [[186,383],[216,383],[216,419],[186,419]]},
     {"cls": "", "poly": [[-138,245],[-124,245],[-124,292],[-138,292]]},
     {"cls": "", "poly": [[-138,328],[-124,328],[-124,375],[-138,375]]},
-    {"cls": "closet", "poly": [[238,86],[262,86],[262,126],[238,126]]},
-    {"cls": "tub", "poly": [[234,28],[262,28],[262,86],[234,86]]},
+    {"cls": "tub", "poly": [[208,28],[238,28],[238,88],[208,88]]},
     {"cls": "vanity", "poly": [[158,6],[180,6],[180,44],[158,44]]},
     {"cls": "toilet", "poly": [[160,50],[178,50],[178,72],[160,72]]},
     {"cls": "", "poly": [[216,385],[246,385],[246,409],[216,409]]},
@@ -93,7 +93,7 @@ window.HOUSE = {
     {"cls": "col", "poly": [[-318,145],[-308,145],[-308,155],[-318,155]]},
     {"cls": "col", "poly": [[-165,115],[-155,115],[-155,125],[-165,125]]},
     {"cls": "col", "poly": [[-50,435],[-40,435],[-40,445],[-50,445]]},
-    {"cls": "shower", "poly": [[206,-113],[248,-113],[248,-77],[206,-77]]}
+    {"cls": "shower", "poly": [[192,-113],[228,-113],[228,-77],[192,-77]]}
   ],
   "tour": [
     {"id": "foyer", "name": "Foyer", "photos": [
@@ -135,9 +135,9 @@ window.HOUSE = {
     ]},
     {"id": "hall-bathroom", "name": "Hall Bathroom", "photos": [
       {"f": "hall-bathroom-1", "x": 180, "y": 8, "dir": 90, "cap": "From the door, the vanity is on the right and the toilet is past it"},
-      {"f": "hall-bathroom-2", "x": 225, "y": 62, "dir": -140, "cap": "The vanity and medicine cabinet, with the door on the right"},
-      {"f": "hall-bathroom-5", "x": 230, "y": 50, "dir": 175, "cap": "The toilet and the vanity"},
-      {"f": "hall-bathroom-3", "x": 175, "y": 62, "dir": 0, "cap": "The tub and shower"},
+      {"f": "hall-bathroom-2", "x": 200, "y": 75, "dir": -140, "cap": "The vanity and medicine cabinet, with the door on the right"},
+      {"f": "hall-bathroom-5", "x": 202, "y": 50, "dir": 175, "cap": "The toilet and the vanity"},
+      {"f": "hall-bathroom-3", "x": 186, "y": 62, "dir": 0, "cap": "The tub and shower"},
       {"f": "hall-bathroom-4", "x": 205, "y": 58, "dir": -5, "cap": "The shower"},
       {"f": "hall-bathroom-6", "x": 200, "y": 92, "dir": -80, "cap": "The tub, with the door on the left"},
       {"f": "hall-bathroom-7", "x": 190, "y": 40, "dir": -95, "cap": "Looking out the door toward the hall closet"}
@@ -166,14 +166,14 @@ window.HOUSE = {
       {"f": "primary-bathroom-1", "x": 124, "y": -188, "dir": -55, "cap": "From the bedroom door, the double vanity and the corner tub"},
       {"f": "primary-bathroom-2", "x": 140, "y": -200, "dir": -5, "cap": "The corner tub, the toilet and the shower"},
       {"f": "primary-bathroom-3", "x": 215, "y": -195, "dir": -165, "cap": "The vanity, the glass-block window and the tub"},
-      {"f": "primary-bathroom-4", "x": 135, "y": -205, "dir": 50, "cap": "The shower and the doors to the closet"}
+      {"f": "primary-bathroom-4", "x": 135, "y": -205, "dir": 55, "cap": "The shower and the doors to the closet"}
     ]},
     {"id": "primary-closet", "name": "Primary Closet", "photos": [
-      {"f": "primary-closet-1", "x": 214, "y": -148, "dir": 135, "cap": "Looking into the closet from the bathroom"},
-      {"f": "primary-closet-2", "x": 185, "y": -120, "dir": 60, "cap": "The shoe rack just inside the doors"},
+      {"f": "primary-closet-1", "x": 205, "y": -150, "dir": 140, "cap": "Looking into the closet from the bathroom"},
+      {"f": "primary-closet-2", "x": 172, "y": -112, "dir": 60, "cap": "The shoe rack just inside the doors"},
       {"f": "primary-closet-5", "x": 135, "y": -105, "dir": 0, "cap": "Shelves along both walls"},
-      {"f": "primary-closet-4", "x": 180, "y": -95, "dir": -35, "cap": "The skylight"},
-      {"f": "primary-closet-3", "x": 195, "y": -95, "dir": 160, "cap": "A corner of the closet"},
+      {"f": "primary-closet-4", "x": 165, "y": -100, "dir": -35, "cap": "The skylight"},
+      {"f": "primary-closet-3", "x": 180, "y": -90, "dir": 160, "cap": "A corner of the closet"},
       {"f": "primary-closet-6", "x": 145, "y": -75, "dir": -45, "cap": "Shelves beside the door back to the bathroom"}
     ]}
   ]
