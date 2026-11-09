@@ -33,6 +33,10 @@ Things worth knowing:
 
 - **Move lined-up walls together** (on by default) moves every wall that's in line with the one you drag and touching it. Doors, windows and counters on that wall move with it. Turn it off to move only the selected room's wall.
 - To set an exact size, click a wall's square and type the room's size across from it. That wall moves and the opposite wall stays put.
+- To change a room's shape, double-click one of its walls to add a corner, then drag the square on either side of the new corner. Only that stretch of wall moves, it steps out square, and the room next door follows.
+- Click a corner's circle to remove it, type where it goes, or cut it off at an angle. The angled cut can put double doors, a door or an open wall on the new angled wall.
+- Turn off **Keep corners square** to drag a corner to any angle. It snaps to other rooms' corners so shared walls stay lined up.
+- The **Add** menu places doors and windows (click a wall) and fixtures such as a shower, tub, toilet or vanity (click where it goes). Select a fixture to type its size or turn it.
 - Editing the plan on a different computer starts from what's on the site. Unsaved changes stay in the browser where you made them.
 - Anyone who finds the editor's address can play with it, but nothing they do reaches the site unless they can sign in to this GitHub account.
 

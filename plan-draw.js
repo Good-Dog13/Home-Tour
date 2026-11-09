@@ -15,13 +15,22 @@
     return `M${num(f[0])},${num(f[1])} A${num(r)},${num(r)} 0 0 ${cross > 0 ? 1 : 0} ${num(l[0])},${num(l[1])}`;
   }
 
+  /* which way an opening's "side" points: +1 is toward +x for a wall that runs along y, toward +y for a wall
+     that runs along x, and the matching side for an angled wall */
+  function sideNormal(o) {
+    const dx = o.b[0] - o.a[0], dy = o.b[1] - o.a[1], len = Math.hypot(dx, dy) || 1;
+    let nx = -dy / len, ny = dx / len;
+    if (nx < -1e-9 || (Math.abs(nx) <= 1e-9 && ny < 0)) { nx = -nx; ny = -ny; }
+    return [nx * o.side, ny * o.side];
+  }
+
   /* one door, window or opening; with tag set, it is wrapped in a group the editor can grab */
   function drawOpening(o, i, tag) {
     const [ax, ay] = o.a, [bx, by] = o.b;
-    const horiz = Math.abs(ay - by) < 0.01, len = Math.hypot(bx - ax, by - ay) || 1;
-    const u = [(bx - ax) / len, (by - ay) / len], n = horiz ? [0, o.side] : [o.side, 0], T = 7;
-    const gx = Math.min(ax, bx) - (horiz ? 0 : T / 2), gy = Math.min(ay, by) - (horiz ? T / 2 : 0);
-    let s = `<rect class="gap ${o.ext ? "ext" : "int"}" x="${num(gx)}" y="${num(gy)}" width="${num(horiz ? len : T)}" height="${num(horiz ? T : len)}"/>`;
+    const len = Math.hypot(bx - ax, by - ay) || 1;
+    const u = [(bx - ax) / len, (by - ay) / len], n = sideNormal(o), T = 3.5;
+    const g = [[ax + n[0] * T, ay + n[1] * T], [bx + n[0] * T, by + n[1] * T], [bx - n[0] * T, by - n[1] * T], [ax - n[0] * T, ay - n[1] * T]];
+    let s = `<path class="gap ${o.ext ? "ext" : "int"}" d="${pts(g)}"/>`;
     const add = (p, k) => [p[0] + n[0] * k, p[1] + n[1] * k];
     if (o.type === "window" || o.type === "arched") {
       for (const k of [-1.6, 1.6]) s += `<line class="glass" x1="${num(ax + n[0] * k)}" y1="${num(ay + n[1] * k)}" x2="${num(bx + n[0] * k)}" y2="${num(by + n[1] * k)}"/>`;
@@ -48,6 +57,18 @@
     }
     if (tag) s = `<g class="op" data-k="op" data-i="${i}">${s}<line class="hit" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}"/></g>`;
     return s;
+  }
+
+  /* small drawn details that say what a fixture is: an X for a shower, an inner tub, a bowl, a sink */
+  function fixtureDetail(f) {
+    const xs = f.poly.map(p => p[0]), ys = f.poly.map(p => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), w = x1 - x0, h = y1 - y0;
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    if (f.cls === "shower") return `<path class="fxd" d="M${num(x0)},${num(y0)}L${num(x1)},${num(y1)}M${num(x1)},${num(y0)}L${num(x0)},${num(y1)}"/>`;
+    if (f.cls === "tub") { const k = Math.min(4, w / 5, h / 5); return `<rect class="fxd" x="${num(x0 + k)}" y="${num(y0 + k)}" width="${num(w - 2 * k)}" height="${num(h - 2 * k)}" rx="${num(Math.min(w, h) / 3)}"/>`; }
+    if (f.cls === "toilet") return `<ellipse class="fxd" cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.36)}" ry="${num(h * 0.36)}"/>`;
+    if (f.cls === "vanity") { const r = Math.min(w, h) * 0.3; return `<ellipse class="fxd" cx="${num(cx)}" cy="${num(cy)}" rx="${num(w >= h ? r * 1.3 : r)}" ry="${num(w >= h ? r : r * 1.3)}"/>`; }
+    return "";
   }
 
   function labelAngle(axis) {
@@ -109,7 +130,7 @@
       }
     });
     s += `<g${opts.tag ? "" : ' pointer-events="none"'}>`;
-    s += house.fixtures.map((f, i) => `<path class="fx ${f.cls || ""}" d="${pts(f.poly)}"${opts.tag ? ` data-k="fx" data-i="${i}"` : ""}/>`).join("");
+    s += house.fixtures.map((f, i) => `<path class="fx ${f.cls || ""}" d="${pts(f.poly)}"${opts.tag ? ` data-k="fx" data-i="${i}"` : ""}/>` + fixtureDetail(f)).join("");
     s += `<path class="walls dashed" pointer-events="none" d="${house.rooms.filter(r => r.kind === "outdoor").map(r => pts(r.poly)).join("")}"/>`;
     s += `<path class="walls" pointer-events="none" d="${house.rooms.filter(r => r.kind !== "outdoor").map(r => pts(r.poly)).join("")}"/>`;
     s += house.openings.map((o, i) => drawOpening(o, i, opts.tag)).join("");
@@ -179,7 +200,7 @@ ${tour}
 `;
   }
 
-  const api = {R, toScreen, esc, num, pts, tourIndex, arcPath, drawOpening, labelAngle, frontDoor, labelsMarkup, planMarkup, screenBox, houseBox, setLabelScale, serialize};
+  const api = {R, toScreen, esc, num, pts, tourIndex, arcPath, sideNormal, fixtureDetail, drawOpening, labelAngle, frontDoor, labelsMarkup, planMarkup, screenBox, houseBox, setLabelScale, serialize};
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PlanDraw = api;
 })(this);

@@ -63,11 +63,11 @@ p{margin:0}
 select.btn{padding-right:8px}
 
 /* main area */
-.layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px}
+.layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 370px}
 .stage{position:relative;min-width:0;min-height:0;background:var(--sheet)}
 #ed{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
 #ed.panning{cursor:grabbing}
-#ed.adding{cursor:crosshair}
+#ed.adding,#ed.adding *{cursor:crosshair!important}
 .zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
 .zoom .btn{min-width:40px}
 .layers{position:absolute;left:12px;top:12px;display:flex;flex-wrap:wrap;gap:6px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;max-width:calc(100% - 90px)}
@@ -81,13 +81,14 @@ select.btn{padding-right:8px}
 .panel h3{font-size:.95rem;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
 .panel .sub{color:var(--muted);font-size:.9rem}
 .group{display:flex;flex-direction:column;gap:8px}
+.group + .group{border-top:1px solid var(--line);padding-top:14px}
 .field{display:flex;flex-direction:column;gap:4px}
 .field span{font-size:.85rem;color:var(--muted)}
 .field input,.field select,.field textarea{border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--bg);width:100%}
 .field textarea{min-height:64px;resize:vertical}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
 .row .field{flex:1;min-width:70px}
-.size{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums}
+.size{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums;margin:0}
 .size dt{color:var(--muted)} .size dd{margin:0;font-weight:700}
 .help{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.9rem}
@@ -99,7 +100,6 @@ kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:
 .spotgrid button[aria-current="true"]{border-color:var(--mark)}
 .spotgrid img{width:100%;height:100%;object-fit:cover;display:block}
 .photo{width:100%;border-radius:10px;display:block;background:var(--floor-off);aspect-ratio:4/3;object-fit:cover}
-.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:10px 12px;font-size:.92rem}
 .banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--warn-bg);color:var(--warn-ink);padding:8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));font-weight:700}
 .banner .btn{min-height:30px;padding:3px 10px}
 .foot{font-size:.8rem;color:var(--muted);margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
@@ -132,6 +132,7 @@ kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:
 .fx:hover{stroke:var(--accent);stroke-width:2}
 .fx.col{fill:var(--wall);stroke:none}
 .fx.closet{stroke-width:2.5}
+.fxd{fill:none;stroke:var(--wall);stroke-width:.8;pointer-events:none}
 .op{cursor:move}
 .op .hit{stroke:transparent;stroke-width:16px;vector-effect:non-scaling-stroke;stroke-linecap:round}
 .op:hover .hit{stroke:var(--accent);stroke-opacity:.28}
@@ -150,13 +151,15 @@ kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:
 .selroom{fill:var(--accent);fill-opacity:.1;stroke:var(--accent);stroke-width:3px;vector-effect:non-scaling-stroke;pointer-events:none}
 .seledge{stroke:var(--accent);stroke-width:7px;vector-effect:non-scaling-stroke;stroke-linecap:round;pointer-events:none}
 .h-vtx{fill:var(--card);stroke:var(--accent);stroke-width:2.5px;vector-effect:non-scaling-stroke;cursor:move}
-.h-edge{fill:var(--accent);stroke:var(--card);stroke-width:2px;vector-effect:non-scaling-stroke}
+.h-vtx.active{fill:var(--mark);stroke:var(--card)}
+.h-edge{fill:var(--accent);stroke:var(--card);stroke-width:2px;vector-effect:non-scaling-stroke;cursor:move}
 .h-edge.v{cursor:ns-resize} .h-edge.h{cursor:ew-resize}
 .h-edge.active{fill:var(--mark)}
 .selop{stroke:var(--accent);stroke-width:9px;stroke-opacity:.45;vector-effect:non-scaling-stroke;stroke-linecap:round;pointer-events:none}
 .selfx{fill:none;stroke:var(--accent);stroke-width:3px;vector-effect:non-scaling-stroke;pointer-events:none}
 .dim{font:700 var(--dfs, 11px) var(--body);fill:var(--accent);paint-order:stroke;stroke:var(--card);stroke-width:calc(var(--dfs, 11px) * .35);stroke-linejoin:round;pointer-events:none}
 .guide{stroke:var(--guide);stroke-width:1.5px;stroke-dasharray:6 4;vector-effect:non-scaling-stroke;pointer-events:none}
+.guidept{fill:none;stroke:var(--guide);stroke-width:2px;vector-effect:non-scaling-stroke;pointer-events:none}
 .cam{cursor:move}
 .cam .cone{fill:var(--mark);fill-opacity:.22;stroke:var(--mark);stroke-width:1.2px;vector-effect:non-scaling-stroke}
 .cam .dot{fill:var(--mark);stroke:var(--card);stroke-width:1.5px;vector-effect:non-scaling-stroke}
@@ -183,20 +186,32 @@ kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:
     <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z)">Undo</button>
     <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
     <span class="sep"></span>
-    <label class="tog" title="When you move a wall, every wall lined up with it and touching it moves too"><input type="checkbox" id="optConnected" checked> Move lined-up walls together</label>
-    <label class="tog" title="While dragging, walls jump into line with nearby walls"><input type="checkbox" id="optSnap" checked> Snap to other walls</label>
+    <label class="tog" title="When you move a wall, the walls lined up with it and touching it move too"><input type="checkbox" id="optConnected" checked> Move lined-up walls together</label>
+    <label class="tog" title="Dragging a corner moves its two walls and keeps them square. Turn off to drag a corner to any angle."><input type="checkbox" id="optSquare" checked> Keep corners square</label>
+    <label class="tog" title="While dragging, things jump into line with nearby walls and corners"><input type="checkbox" id="optSnap" checked> Snap</label>
     <span class="sep"></span>
-    <select class="btn" id="addType" aria-label="Kind of door or window to add">
-      <option value="door">Door</option>
-      <option value="double">Double doors</option>
-      <option value="french">French doors (red)</option>
-      <option value="bifold">Bifold doors</option>
-      <option value="window">Window</option>
-      <option value="arched">Arched window</option>
-      <option value="open">Open wall</option>
-      <option value="garage">Garage door</option>
+    <select class="btn" id="addType" aria-label="What to add">
+      <optgroup label="Doors and windows (click a wall)">
+        <option value="op:door">Door</option>
+        <option value="op:double">Double doors</option>
+        <option value="op:french">French doors (red)</option>
+        <option value="op:bifold">Bifold doors</option>
+        <option value="op:window">Window</option>
+        <option value="op:arched">Arched window</option>
+        <option value="op:open">Open wall</option>
+        <option value="op:garage">Garage door</option>
+      </optgroup>
+      <optgroup label="Fixtures (click where it goes)">
+        <option value="fx:shower">Shower</option>
+        <option value="fx:tub">Tub</option>
+        <option value="fx:toilet">Toilet</option>
+        <option value="fx:vanity">Vanity (sink)</option>
+        <option value="fx:">Counter or cabinet</option>
+        <option value="fx:closet">Closet or built-in</option>
+        <option value="fx:col">Column</option>
+      </optgroup>
     </select>
-    <button type="button" class="btn" id="addBtn">Add to a wall</button>
+    <button type="button" class="btn" id="addBtn">Add</button>
     <span class="sep"></span>
     <a class="btn" id="previewLink" href="index.html?preview" target="_blank" rel="noopener">Preview the tour</a>
     <button type="button" class="btn primary" id="saveBtn">Save to the site</button>
@@ -213,7 +228,7 @@ kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:
     <div class="layers">
       <b>Can grab:</b>
       <label class="tog"><input type="checkbox" id="lyOp" checked> Doors and windows</label>
-      <label class="tog"><input type="checkbox" id="lyFx" checked> Counters and fixtures</label>
+      <label class="tog"><input type="checkbox" id="lyFx" checked> Fixtures</label>
       <label class="tog"><input type="checkbox" id="lyLbl" checked> Room names</label>
       <label class="tog"><input type="checkbox" id="lyCam" checked> Photo spots</label>
     </div>
@@ -258,11 +273,14 @@ const KEY = "home-tour:draft";
 const clone = o => JSON.parse(JSON.stringify(o));
 const SITE = clone(window.HOUSE), SITE_JSON = JSON.stringify(SITE);
 const $ = id => document.getElementById(id);
-const near = (a, b) => Math.abs(a - b) < 0.01;
+const TOL = 0.01;
+const near = (a, b) => Math.abs(a - b) < TOL;
+const same = (p, q) => near(p[0], q[0]) && near(p[1], q[1]);
 const esc = PD.esc;
 const NAMES = {coat:"Coat closet", hcl1:"Hall closet", hcl2:"Second hall closet", pantry:"Pantry", garage:"Garage", store:"Storeroom", porch1:"Main porch", porch2:"Kitchen porch"};
-const TYPES = {door:["Door",32], double:["Double doors",60], french:["French doors (red)",60], bifold:["Bifold doors",48], window:["Window",36], arched:["Arched window",60], open:["Open wall",48], garage:["Garage door",192]};
-const FXTYPES = {"":"Counter, cabinet or fixture", col:"Column", closet:"Closet or built-in"};
+const OPTYPES = {door:["Door",32], double:["Double doors",60], french:["French doors (red)",60], bifold:["Bifold doors",48], window:["Window",36], arched:["Arched window",60], open:["Open wall",48], garage:["Garage door",192]};
+/* fixture: [name, size side to side, size front to back] in inches */
+const FXTYPES = {shower:["Shower",48,36], tub:["Tub",60,30], toilet:["Toilet",20,28], vanity:["Vanity (sink)",48,22], "":["Counter or cabinet",48,24], closet:["Closet or built-in",48,24], col:["Column",10,10]};
 const KINDS = {room:"Room", other:"Closet, storage or garage", outdoor:"Outdoors (porch)"};
 
 /* ---------- state ---------- */
@@ -273,9 +291,10 @@ try{
   if(d && d !== SITE_JSON){ H = JSON.parse(d); draftOnLoad = true; }
 }catch(e){}
 const undoStack = [], redoStack = [];
-let sel = null;            /* {k:"room", i, e} | {k:"op", i} | {k:"fx", i} | {k:"cam", r, p} */
+/* sel: {k:"room", i, e, v} | {k:"op", i} | {k:"fx", i} | {k:"cam", r, p} */
+let sel = null;
 let drag = null, addMode = false, live = "";
-const opts = {connected:true, snap:true};
+const opts = {connected:true, snap:true, square:true};
 const svg = $("ed"), stage = $("stage");
 let vb = null;
 
@@ -284,11 +303,14 @@ const ftin = v => { const neg = v < 0; v = Math.abs(Math.round(v)); const f = Ma
 const roomName = r => { const t = H.tour.find(q => q.id === r.id); return t ? t.name : (NAMES[r.id] || r.id); };
 const edgeAt = (poly, e) => [poly[e], poly[(e + 1) % poly.length]];
 const isAxis = (a, b) => near(a[0], b[0]) || near(a[1], b[1]);
+const dist = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+const unit = (a, b) => { const l = dist(a, b) || 1; return [(b[0] - a[0]) / l, (b[1] - a[1]) / l]; };
+const dot = (u, v) => u[0] * v[0] + u[1] * v[1];
+const r2 = v => Math.round(v * 100) / 100;
 const dirWord = (ax, d) => ax === 0 ? (d > 0 ? "toward the street" : "toward the back") : (d > 0 ? "toward the garage side" : "toward the bedroom wing");
 function facingWords(deg){
   const names = ["toward the street","toward the street and garage side","toward the garage side","toward the back and garage side","toward the back","toward the back and bedroom wing","toward the bedroom wing","toward the street and bedroom wing"];
-  const k = Math.round((((deg % 360) + 360) % 360) / 45) % 8;
-  return names[k];
+  return names[Math.round((((deg % 360) + 360) % 360) / 45) % 8];
 }
 function inside(poly, x, y){
   let c = false;
@@ -299,6 +321,12 @@ function inside(poly, x, y){
   return c;
 }
 function bbox(poly){ const xs = poly.map(p => p[0]), ys = poly.map(p => p[1]); return {x0:Math.min(...xs), x1:Math.max(...xs), y0:Math.min(...ys), y1:Math.max(...ys)}; }
+function isRect(poly){ return poly.length === 4 && poly.every((p, i) => isAxis(p, poly[(i + 1) % 4])); }
+function segDist(p, a, b){
+  const u = unit(a, b), L = dist(a, b), t = Math.max(0, Math.min(L, dot([p[0] - a[0], p[1] - a[1]], u)));
+  const q = [a[0] + u[0] * t, a[1] + u[1] * t];
+  return {d:dist(p, q), t, q, u, L};
+}
 
 /* ---------- view ---------- */
 const scaleNow = () => (svg.clientWidth || 1) / vb.w;
@@ -319,17 +347,27 @@ function planPoint(e){
   const w = svg.querySelector(".world");
   const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
   const q = p.matrixTransform(w.getScreenCTM().inverse());
-  return {x:q.x, y:q.y};
+  return [q.x, q.y];
 }
 
-/* ---------- walls ---------- */
-/* a wall is a straight run on one line; with "lined-up walls" on, it reaches along every touching segment on that line */
+/* ---------- shape tools ---------- */
+/* places where a room's outline has an extra corner in the middle of a straight wall; a wall move stops there */
+function breakPoints(h, ax, c){
+  const bx = 1 - ax, out = [];
+  h.rooms.forEach(r => r.poly.forEach((q, j) => {
+    const n = r.poly.length, a = r.poly[(j - 1 + n) % n], b = r.poly[(j + 1) % n];
+    if(near(q[ax], c) && near(a[ax], c) && near(b[ax], c)) out.push(q[bx]);
+  }));
+  return out;
+}
+/* what moves when edge e of room ri is dragged */
 function wallSpec(h, ri, e, connected){
-  const [a, b] = edgeAt(h.rooms[ri].poly, e);
-  if(!isAxis(a, b)) return null;
-  const isVert = near(a[0], b[0]);            /* constant x: the wall faces the street or the back */
-  const ax = isVert ? 0 : 1, bx = 1 - ax, c = a[ax];
-  let lo = Math.min(a[bx], b[bx]), hi = Math.max(a[bx], b[bx]);
+  const poly = h.rooms[ri].poly, [a, b] = edgeAt(poly, e);
+  if(dist(a, b) < TOL) return null;
+  if(!isAxis(a, b)) return {angled:true, ri, e, a:[...a], b:[...b], n:(u => [-u[1], u[0]])(unit(a, b)), connected};
+  const ax = near(a[0], b[0]) ? 0 : 1, bx = 1 - ax, c = a[ax];
+  const eLo = Math.min(a[bx], b[bx]), eHi = Math.max(a[bx], b[bx]);
+  let lo = eLo, hi = eHi;
   if(connected){
     const iv = [];
     h.rooms.forEach(r => r.poly.forEach((q, j) => {
@@ -339,45 +377,138 @@ function wallSpec(h, ri, e, connected){
     let grew = true;
     while(grew){
       grew = false;
-      for(const [p0, p1] of iv) if(p1 >= lo - 0.5 && p0 <= hi + 0.5 && (p0 < lo - 0.01 || p1 > hi + 0.01)){ lo = Math.min(lo, p0); hi = Math.max(hi, p1); grew = true; }
+      for(const [p0, p1] of iv) if(p1 >= lo - 0.5 && p0 <= hi + 0.5 && (p0 < lo - TOL || p1 > hi + TOL)){ lo = Math.min(lo, p0); hi = Math.max(hi, p1); grew = true; }
+    }
+    for(const bp of breakPoints(h, ax, c)){
+      if(bp <= eLo + TOL && bp > lo) lo = bp;
+      if(bp >= eHi - TOL && bp < hi) hi = bp;
     }
   }
-  return {isVert, ax, bx, c, lo, hi, connected, ri, e};
+  return {ax, bx, c, lo, hi, connected, ri, e};
 }
-function moveWall(h0, h, s, newC){
+/* move the stretch of line c between lo and hi to newC. Where a wall carries on past that stretch, the
+   outline gets a new corner, so the moved part steps out square instead of tilting */
+function moveSeg(h, s, newC){
   const {ax, bx, c, lo, hi} = s, d = newC - c;
-  const onLine = q => near(q[ax], c) && q[bx] >= lo - 0.01 && q[bx] <= hi + 0.01;
-  if(s.connected){
-    h0.rooms.forEach((r, i) => r.poly.forEach((q, j) => { if(onLine(q)) h.rooms[i].poly[j][ax] = newC; }));
-  } else {
-    const n = h0.rooms[s.ri].poly.length;
-    h.rooms[s.ri].poly[s.e][ax] = newC;
-    h.rooms[s.ri].poly[(s.e + 1) % n][ax] = newC;
+  const onL = q => near(q[ax], c);
+  const inR = v => v >= lo - TOL && v <= hi + TOL;
+  const scope = s.connected ? h.rooms.map((_, i) => i) : [s.ri];
+  for(const ri of scope){
+    let poly = h.rooms[ri].poly;
+    const touches = poly.some(q => onL(q) && inR(q[bx])) || poly.some((q, j) => { const w = poly[(j + 1) % poly.length]; return onL(q) && onL(w) && Math.min(q[bx], w[bx]) < lo && Math.max(q[bx], w[bx]) > hi; });
+    if(!touches) continue;
+    for(const cut of [lo, hi]){
+      const out = [];
+      poly.forEach((a, j) => {
+        const b = poly[(j + 1) % poly.length];
+        out.push(a);
+        if(onL(a) && onL(b) && cut > Math.min(a[bx], b[bx]) + TOL && cut < Math.max(a[bx], b[bx]) - TOL){ const q = [0, 0]; q[ax] = c; q[bx] = cut; out.push(q); }
+      });
+      poly = out;
+    }
+    const n = poly.length, out = [];
+    poly.forEach((q, j) => {
+      if(!(onL(q) && inR(q[bx]))){ out.push([...q]); return; }
+      const prev = poly[(j - 1 + n) % n], next = poly[(j + 1) % n];
+      const leaves = r => onL(r) && !inR(r[bx]);
+      const m = [...q]; m[ax] = newC;
+      if(leaves(prev) && leaves(next)) out.push([...q]);
+      else if(leaves(prev)) out.push([...q], m);
+      else if(leaves(next)) out.push(m, [...q]);
+      else out.push(m);
+    });
+    h.rooms[ri].poly = out;
   }
-  h0.openings.forEach((o, i) => { if(onLine(o.a) && onLine(o.b)){ h.openings[i].a[ax] = newC; h.openings[i].b[ax] = newC; } });
-  h0.fixtures.forEach((f, i) => {
-    if(f.poly.filter(onLine).length >= 2) h.fixtures[i].poly.forEach((q, j) => { q[ax] = f.poly[j][ax] + d; });
-  });
+  const onLine = q => onL(q) && inR(q[bx]);
+  h.openings.forEach(o => { if(onLine(o.a) && onLine(o.b)){ o.a[ax] = newC; o.b[ax] = newC; } });
+  h.fixtures.forEach(f => { if(f.poly.filter(onLine).length >= 2) f.poly.forEach(q => { q[ax] += d; }); });
 }
-/* the other wall across the room from edge e (for typing an exact size) */
-function oppositeWall(h, ri, e){
+/* an angled wall slides out square to itself */
+function moveAngled(h, s, d){
+  const shift = q => { q[0] = r2(q[0] + s.n[0] * d); q[1] = r2(q[1] + s.n[1] * d); };
+  h.rooms.forEach((r, i) => {
+    if(!s.connected && i !== s.ri) return;
+    r.poly.forEach(q => { if(same(q, s.a) || same(q, s.b)) shift(q); });
+  });
+  const L = dist(s.a, s.b);
+  const onSeg = q => { const sd = segDist(q, s.a, s.b); return sd.d < 0.5 && sd.t >= -TOL && sd.t <= L + TOL; };
+  h.openings.forEach(o => { if(onSeg(o.a) && onSeg(o.b)){ shift(o.a); shift(o.b); } });
+}
+/* tidy an outline: drop doubled-up points and dead-end spikes */
+function cleanPoly(poly){
+  const p = poly.map(q => [r2(q[0]), r2(q[1])]);
+  let changed = true;
+  while(changed && p.length > 3){
+    changed = false;
+    for(let i = 0; i < p.length; i++){
+      const a = p[(i - 1 + p.length) % p.length], b = p[i], c = p[(i + 1) % p.length];
+      if(dist(a, b) < TOL){ p.splice(i, 1); changed = true; break; }
+      const cross = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+      if(Math.abs(cross) < 0.05 && dot([b[0] - a[0], b[1] - a[1]], [c[0] - b[0], c[1] - b[1]]) < 0){ p.splice(i, 1); changed = true; break; }
+    }
+  }
+  return p;
+}
+function cleanAll(h){ h.rooms.forEach(r => { r.poly = cleanPoly(r.poly); }); }
+/* cut a corner off at an angle, L inches along each wall; rooms sharing that corner get the same cut */
+function cutCorner(h, ri, v, L, connected){
+  const poly = h.rooms[ri].poly, n = poly.length, P = [...poly[v]];
+  const pr = poly[(v - 1 + n) % n], nx = poly[(v + 1) % n];
+  if(L <= 0 || L >= dist(P, pr) - 0.5 || L >= dist(P, nx) - 0.5) return null;
+  const d1 = unit(P, pr), d2 = unit(P, nx);
+  const c1 = [r2(P[0] + d1[0] * L), r2(P[1] + d1[1] * L)], c2 = [r2(P[0] + d2[0] * L), r2(P[1] + d2[1] * L)];
+  const apply = (r, j) => {
+    const m = r.poly.length, a = r.poly[(j - 1 + m) % m], b = r.poly[(j + 1) % m];
+    const match = u => (Math.abs(u[0] - d1[0]) < 0.01 && Math.abs(u[1] - d1[1]) < 0.01) ? c1 : (Math.abs(u[0] - d2[0]) < 0.01 && Math.abs(u[1] - d2[1]) < 0.01) ? c2 : null;
+    const qa = match(unit(P, a)), qb = match(unit(P, b));
+    if(!qa || !qb || qa === qb) return false;
+    if(L >= dist(P, a) - 0.5 || L >= dist(P, b) - 0.5) return false;
+    r.poly.splice(j, 1, [...qa], [...qb]);
+    return true;
+  };
+  apply(h.rooms[ri], v);
+  if(connected) h.rooms.forEach((r, i) => { if(i === ri) return; const j = r.poly.findIndex(q => same(q, P)); if(j >= 0) apply(r, j); });
+  return [c1, c2];
+}
+function addCorner(h, ri, e, pt){
   const poly = h.rooms[ri].poly, [a, b] = edgeAt(poly, e);
-  if(!isAxis(a, b)) return null;
-  const ax = near(a[0], b[0]) ? 0 : 1, bx = 1 - ax;
-  const lo = Math.min(a[bx], b[bx]), hi = Math.max(a[bx], b[bx]);
-  let best = null;
-  poly.forEach((q, j) => {
-    if(j === e) return;
-    const w = poly[(j + 1) % poly.length];
-    if(!(near(q[ax], w[ax]))) return;
-    const ov = Math.min(hi, Math.max(q[bx], w[bx])) - Math.max(lo, Math.min(q[bx], w[bx]));
-    if(ov <= 0.5) return;
-    const dist = Math.abs(q[ax] - a[ax]);
-    if(!best || ov > best.ov + 0.5 || (Math.abs(ov - best.ov) <= 0.5 && dist < best.dist)) best = {c:q[ax], ov, dist};
-  });
-  return best ? {ax, c:best.c, here:a[ax]} : null;
+  const sd = segDist(pt, a, b);
+  if(sd.t < 1 || sd.t > sd.L - 1) return false;
+  let q = sd.q;
+  if(isAxis(a, b)) q = near(a[0], b[0]) ? [a[0], Math.round(q[1])] : [Math.round(q[0]), a[1]];
+  else q = [r2(q[0]), r2(q[1])];
+  poly.splice(e + 1, 0, q);
+  return true;
 }
-/* snap a wall position to whole inches, and to other walls nearby when that option is on */
+/* snapping for a corner dragged freely: to other corners first, then into line with walls */
+function snapPoint(p, scale, skip){
+  const tolPt = 10 / scale, tolLn = 8 / scale;
+  if(opts.snap){
+    let best = null;
+    H.rooms.forEach(r => r.poly.forEach(q => {
+      if(skip && same(q, skip)) return;
+      const d = dist(p, q);
+      if(d < tolPt && (!best || d < best.d)) best = {d, q};
+    }));
+    if(best) return {pt:[...best.q], guide:{pt:[...best.q]}};
+  }
+  const out = [Math.round(p[0]), Math.round(p[1])];
+  let guide = null;
+  if(opts.snap){
+    for(const ax of [0, 1]){
+      let b = null;
+      H.rooms.forEach(r => r.poly.forEach((q, j) => {
+        const w = r.poly[(j + 1) % r.poly.length];
+        if(!near(q[ax], w[ax])) return;
+        if(skip && (same(q, skip) || same(w, skip))) return;
+        const d = Math.abs(q[ax] - p[ax]);
+        if(d < tolLn && (!b || d < b.d)) b = {d, c:q[ax]};
+      }));
+      if(b){ out[ax] = b.c; guide = {ax, c:b.c}; }
+    }
+  }
+  return {pt:out, guide};
+}
 function snapLine(val, s, scale){
   let v = Math.round(val), guide = null;
   if(opts.snap){
@@ -385,7 +516,7 @@ function snapLine(val, s, scale){
     let best = null;
     H.rooms.forEach(r => r.poly.forEach((q, j) => {
       const w = r.poly[(j + 1) % r.poly.length];
-      if(!(near(q[s.ax], w[s.ax]))) return;
+      if(!near(q[s.ax], w[s.ax])) return;
       const c = q[s.ax];
       if(near(c, s.c)) return;
       const dd = Math.abs(c - val);
@@ -395,37 +526,81 @@ function snapLine(val, s, scale){
   }
   return {v, guide};
 }
+/* room size across from a wall, for typing an exact size */
+function oppositeWall(h, ri, e){
+  const poly = h.rooms[ri].poly, [a, b] = edgeAt(poly, e);
+  if(!isAxis(a, b)) return null;
+  const ax = near(a[0], b[0]) ? 0 : 1, bx = 1 - ax;
+  const lo = Math.min(a[bx], b[bx]), hi = Math.max(a[bx], b[bx]);
+  let best = null;
+  poly.forEach((q, j) => {
+    if(j === e) return;
+    const w = poly[(j + 1) % poly.length];
+    if(!near(q[ax], w[ax]) || near(q[ax], a[ax])) return;
+    const ov = Math.min(hi, Math.max(q[bx], w[bx])) - Math.max(lo, Math.min(q[bx], w[bx]));
+    if(ov <= 0.5) return;
+    const dd = Math.abs(q[ax] - a[ax]);
+    if(!best || ov > best.ov + 0.5 || (Math.abs(ov - best.ov) <= 0.5 && dd < best.dd)) best = {c:q[ax], ov, dd};
+  });
+  return best ? {ax, c:best.c, here:a[ax]} : null;
+}
+/* corner drag that keeps walls square: move the corner's wall that runs along y, then the one along x */
+function squareCornerMove(h, ri, v, target, scale){
+  const poly = h.rooms[ri].poly, n = poly.length, P = [...poly[v]];
+  const specs = [(v - 1 + n) % n, v].map(e => wallSpec(h, ri, e, opts.connected));
+  if(specs.some(s => !s || s.angled) || specs[0].ax === specs[1].ax) return null;
+  const first = specs.find(s => s.ax === 0);
+  const parts = []; let guide = null;
+  const sn1 = snapLine(target[0], first, scale);
+  moveSeg(h, first, sn1.v); if(sn1.guide) guide = sn1.guide;
+  if(sn1.v !== P[0]) parts.push(`${ftin(Math.abs(sn1.v - P[0]))} ${dirWord(0, sn1.v - P[0])}`);
+  const P2 = [sn1.v, P[1]], poly2 = h.rooms[ri].poly, m = poly2.length;
+  const v2 = poly2.findIndex(q => same(q, P2));
+  if(v2 >= 0){
+    const e2 = [(v2 - 1 + m) % m, v2].find(e => { const [a, b] = edgeAt(poly2, e); return near(a[1], b[1]) && !same(a, b); });
+    if(e2 !== undefined){
+      const s2 = wallSpec(h, ri, e2, opts.connected);
+      const sn2 = snapLine(target[1], s2, scale);
+      moveSeg(h, s2, sn2.v); if(sn2.guide) guide = sn2.guide;
+      if(sn2.v !== P[1]) parts.push(`${ftin(Math.abs(sn2.v - P[1]))} ${dirWord(1, sn2.v - P[1])}`);
+    }
+  }
+  return {guide, text:parts.length ? "Moved " + parts.join(", ") : "Not moved"};
+}
+function freeCornerMove(h, ri, v, target, scale){
+  const P = [...h.rooms[ri].poly[v]];
+  const sp = snapPoint(target, scale, P);
+  if(opts.connected) h.rooms.forEach(r => r.poly.forEach((q, j) => { if(same(q, P)) r.poly[j] = [...sp.pt]; }));
+  else h.rooms[ri].poly[v] = [...sp.pt];
+  return {guide:sp.guide, text:"Moving this corner on its own"};
+}
 
 /* ---------- drawing ---------- */
 function overlay(scale){
   const u = 1 / scale;
   let s = "";
   if(drag && drag.guide){
-    const b = PD.houseBox(H, 200), big = 4000;
-    s += drag.guide.ax === 0
-      ? `<line class="guide" x1="${drag.guide.c}" y1="${-big}" x2="${drag.guide.c}" y2="${big}"/>`
-      : `<line class="guide" x1="${-big}" y1="${drag.guide.c}" x2="${big}" y2="${drag.guide.c}"/>`;
+    const g = drag.guide, big = 4000;
+    if(g.pt) s += `<circle class="guidept" cx="${g.pt[0]}" cy="${g.pt[1]}" r="${PD.num(11 * u)}"/>`;
+    else s += g.ax === 0 ? `<line class="guide" x1="${g.c}" y1="${-big}" x2="${g.c}" y2="${big}"/>` : `<line class="guide" x1="${-big}" y1="${g.c}" x2="${big}" y2="${g.c}"/>`;
   }
   if(sel && sel.k === "room" && H.rooms[sel.i]){
     const poly = H.rooms[sel.i].poly;
     s += `<path class="selroom" d="${PD.pts(poly)}"/>`;
     poly.forEach((a, e) => {
       const b = poly[(e + 1) % poly.length];
-      if(!isAxis(a, b)) return;
-      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
-      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
-      const vert = near(a[0], b[0]);
-      if(sel.e === e) s += `<line class="seledge" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
-      /* size label on the inside of each wall */
-      let nx = vert ? 1 : 0, ny = vert ? 0 : 1;
+      const len = dist(a, b);
+      if(len < TOL) return;
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, uu = unit(a, b);
+      let nx = -uu[1], ny = uu[0];
       if(!inside(poly, mx + nx * 2, my + ny * 2)){ nx = -nx; ny = -ny; }
+      if(sel.e === e) s += `<line class="seledge" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
       const off = 22 * u;
       if(len * scale > 34) s += `<text class="dim" text-anchor="middle" dy=".35em" transform="translate(${PD.num(mx + nx * off)},${PD.num(my + ny * off)}) rotate(${-PD.R})">${ftin(len)}</text>`;
-      const hs = 6 * u;
-      /* on screen, a constant-x wall runs side to side, so it is dragged up and down */
-      s += `<rect class="h-edge ${vert ? "v" : "h"}${sel.e === e ? " active" : ""}" data-k="edge" data-e="${e}" x="${PD.num(mx - hs)}" y="${PD.num(my - hs)}" width="${PD.num(2 * hs)}" height="${PD.num(2 * hs)}" rx="${PD.num(2 * u)}"/>`;
+      const hs = 6 * u, vert = near(a[0], b[0]), horiz = near(a[1], b[1]);
+      s += `<rect class="h-edge${vert ? " v" : horiz ? " h" : ""}${sel.e === e ? " active" : ""}" data-k="edge" data-e="${e}" x="${PD.num(mx - hs)}" y="${PD.num(my - hs)}" width="${PD.num(2 * hs)}" height="${PD.num(2 * hs)}" rx="${PD.num(2 * u)}" transform="rotate(${PD.num(Math.atan2(uu[1], uu[0]) * 180 / Math.PI)} ${PD.num(mx)} ${PD.num(my)})"/>`;
     });
-    poly.forEach((p, v) => { s += `<circle class="h-vtx" data-k="vtx" data-v="${v}" cx="${p[0]}" cy="${p[1]}" r="${PD.num(6.5 * u)}"/>`; });
+    poly.forEach((p, v) => { s += `<circle class="h-vtx${sel.v === v ? " active" : ""}" data-k="vtx" data-v="${v}" cx="${p[0]}" cy="${p[1]}" r="${PD.num(6.5 * u)}"/>`; });
   }
   if(sel && sel.k === "op" && H.openings[sel.i]){
     const o = H.openings[sel.i];
@@ -440,8 +615,7 @@ function overlay(scale){
   if($("lyCam").checked){
     const selRoomId = sel && sel.k === "room" && H.rooms[sel.i] ? H.rooms[sel.i].id : (sel && sel.k === "cam" ? H.tour[sel.r].id : null);
     H.tour.forEach((t, r) => t.photos.forEach((p, k) => {
-      const isSel = sel && sel.k === "cam" && sel.r === r && sel.p === k;
-      if(isSel) return;
+      if(sel && sel.k === "cam" && sel.r === r && sel.p === k) return;
       const L = 26 * u, cls = selRoomId && selRoomId !== t.id ? "cam dim2" : "cam";
       s += `<g class="${cls}" data-k="cam" data-r="${r}" data-p="${k}" transform="translate(${p.x},${p.y}) rotate(${p.dir}) scale(${PD.num(L)})"><path class="cone" d="M0,0 L0.848,-0.53 A1,1 0 0 1 0.848,0.53 Z"/><circle class="dot" r="0.17"/></g>`;
     }));
@@ -471,18 +645,14 @@ function render(){
 
 /* ---------- history and saving ---------- */
 function setStatus(){
-  const same = JSON.stringify(H) === SITE_JSON;
-  const st = $("status");
-  st.textContent = same ? "Matches the site" : "Changes not on the site yet";
-  st.classList.toggle("dirty", !same);
+  const ok = JSON.stringify(H) === SITE_JSON, st = $("status");
+  st.textContent = ok ? "Matches the site" : "Changes not on the site yet";
+  st.classList.toggle("dirty", !ok);
   $("undo").disabled = !undoStack.length;
   $("redo").disabled = !redoStack.length;
 }
 function persist(){
-  try{
-    const j = JSON.stringify(H);
-    if(j === SITE_JSON) localStorage.removeItem(KEY); else localStorage.setItem(KEY, j);
-  }catch(e){}
+  try{ const j = JSON.stringify(H); if(j === SITE_JSON) localStorage.removeItem(KEY); else localStorage.setItem(KEY, j); }catch(e){}
   setStatus();
 }
 function commit(prevJson){
@@ -491,21 +661,25 @@ function commit(prevJson){
   redoStack.length = 0;
   persist();
 }
+/* every change from the panel or keyboard goes through here so it can be undone */
 function change(fn){
   const prev = JSON.stringify(H);
+  const counts = H.rooms.map(r => r.poly.length).join();
   fn();
+  cleanAll(H);
+  if(sel && sel.k === "room" && H.rooms.map(r => r.poly.length).join() !== counts){ sel.e = null; sel.v = null; }
   if(JSON.stringify(H) !== prev) commit(prev);
-  render(); renderPanel();
+  checkSel(); render(); renderPanel();
 }
 function checkSel(){
   if(!sel) return;
-  if(sel.k === "room" && !H.rooms[sel.i]) sel = null;
+  if(sel.k === "room"){ const r = H.rooms[sel.i]; if(!r) sel = null; else { if(sel.e != null && sel.e >= r.poly.length) sel.e = null; if(sel.v != null && sel.v >= r.poly.length) sel.v = null; } }
   else if(sel.k === "op" && !H.openings[sel.i]) sel = null;
   else if(sel.k === "fx" && !H.fixtures[sel.i]) sel = null;
   else if(sel.k === "cam" && !(H.tour[sel.r] && H.tour[sel.r].photos[sel.p])) sel = null;
 }
-function undo(){ if(!undoStack.length) return; redoStack.push(JSON.stringify(H)); H = JSON.parse(undoStack.pop()); checkSel(); persist(); render(); renderPanel(); }
-function redo(){ if(!redoStack.length) return; undoStack.push(JSON.stringify(H)); H = JSON.parse(redoStack.pop()); checkSel(); persist(); render(); renderPanel(); }
+function undo(){ if(!undoStack.length) return; redoStack.push(JSON.stringify(H)); H = JSON.parse(undoStack.pop()); if(sel && sel.k === "room"){ sel.e = null; sel.v = null; } checkSel(); persist(); render(); renderPanel(); }
+function redo(){ if(!redoStack.length) return; undoStack.push(JSON.stringify(H)); H = JSON.parse(redoStack.pop()); if(sel && sel.k === "room"){ sel.e = null; sel.v = null; } checkSel(); persist(); render(); renderPanel(); }
 
 /* ---------- pointer ---------- */
 svg.addEventListener("pointerdown", e => {
@@ -513,25 +687,37 @@ svg.addEventListener("pointerdown", e => {
   const t = e.target.closest("[data-k]");
   const k = t ? t.dataset.k : null;
   const p = planPoint(e);
-  if(addMode){ placeOpening(p); return; }
+  if(addMode){ placeNew(p); return; }
+  const now = performance.now();
+  const dbl = lastDown && now - lastDown.t < 450 && Math.hypot(e.clientX - lastDown.x, e.clientY - lastDown.y) < 8;
+  lastDown = {t:now, x:e.clientX, y:e.clientY};
+  if(dbl && (k === "room" || k === "edge" || k === "vtx" || !k) && tryAddCorner(p)){ lastDown = null; return; }
   try{ svg.setPointerCapture(e.pointerId); }catch(err){}
   drag = {type:"pan", start:p, sx:e.clientX, sy:e.clientY, base:clone(H), baseJson:JSON.stringify(H), moved:false, vb0:{...vb}, alt:e.altKey, guide:null};
   if(k === "vtx"){ drag.type = "corner"; drag.v = +t.dataset.v; }
-  else if(k === "edge"){ drag.type = "wall"; sel.e = +t.dataset.e; drag.spec = wallSpec(drag.base, sel.i, sel.e, opts.connected); renderPanel(); }
+  else if(k === "edge"){ drag.type = "wall"; drag.e = +t.dataset.e; drag.spec = wallSpec(drag.base, sel.i, drag.e, opts.connected); }
   else if(k === "op"){ sel = {k:"op", i:+t.dataset.i}; drag.type = "opMove"; renderPanel(); }
   else if(k === "opEnd"){ drag.type = "opEnd"; drag.end = t.dataset.end; }
   else if(k === "fx"){ sel = {k:"fx", i:+t.dataset.i}; drag.type = "fxMove"; renderPanel(); }
   else if(k === "fxv"){ drag.type = "fxVtx"; drag.v = +t.dataset.v; }
   else if(k === "cam"){ sel = {k:"cam", r:+t.dataset.r, p:+t.dataset.p}; drag.type = "camMove"; renderPanel(); }
   else if(k === "camRot"){ drag.type = "camRot"; }
-  else if(k === "lbl"){ sel = {k:"room", i:+t.dataset.i, e:null}; drag.type = "lblMove"; renderPanel(); }
-  else if(k === "room"){ drag.click = {k:"room", i:+t.dataset.i, e:null}; }
+  else if(k === "lbl"){ sel = {k:"room", i:+t.dataset.i, e:null, v:null}; drag.type = "lblMove"; renderPanel(); }
+  else if(k === "room"){
+    /* a click right on the selected room's own wall keeps it selected, so double-clicking a shared wall works */
+    let keep = false;
+    if(sel && sel.k === "room" && H.rooms[sel.i]){
+      const poly = H.rooms[sel.i].poly, tol = 10 / scaleNow();
+      keep = poly.some((a, j) => segDist(p, a, poly[(j + 1) % poly.length]).d < tol);
+    }
+    drag.click = keep ? {...sel} : {k:"room", i:+t.dataset.i, e:null, v:null};
+  }
   else drag.click = "none";
-  if(drag.type !== "pan") render();
+  if(["opMove", "fxMove", "camMove", "lblMove"].includes(drag.type)) render();
 });
 svg.addEventListener("pointermove", e => {
   const p = planPoint(e);
-  $("coords").textContent = `x ${Math.round(p.x)}, y ${Math.round(p.y)} (inches)`;
+  $("coords").textContent = `x ${Math.round(p[0])}, y ${Math.round(p[1])} (inches)`;
   if(!drag) return;
   if(!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 3) return;
   drag.moved = true;
@@ -544,61 +730,59 @@ svg.addEventListener("pointermove", e => {
   }
   H = clone(b); drag.guide = null;
   if(drag.type === "wall" && drag.spec){
-    const s = drag.spec, sn = snapLine(s.ax === 0 ? p.x : p.y, s, scale);
-    moveWall(b, H, s, sn.v); drag.guide = sn.guide;
-    const d = sn.v - s.c;
-    live = d ? `Moved ${ftin(Math.abs(d))} ${dirWord(s.ax, d)}` : "Not moved";
-  } else if(drag.type === "corner"){
-    const poly = b.rooms[sel.i].poly, n = poly.length, v = drag.v;
-    const s1 = wallSpec(b, sel.i, (v - 1 + n) % n, opts.connected), s2 = wallSpec(b, sel.i, v, opts.connected);
-    if(drag.alt || !s1 || !s2 || s1.ax === s2.ax){
-      const q0 = poly[v], np = [Math.round(p.x), Math.round(p.y)];
-      if(opts.connected) b.rooms.forEach((r, i) => r.poly.forEach((q, j) => { if(near(q[0], q0[0]) && near(q[1], q0[1])) H.rooms[i].poly[j] = [...np]; }));
-      else H.rooms[sel.i].poly[v] = [...np];
-      live = "Moving just this corner";
+    const s = drag.spec;
+    if(s.angled){
+      const d = Math.round(dot([p[0] - drag.start[0], p[1] - drag.start[1]], s.n));
+      moveAngled(H, s, d);
+      live = d ? `Moved the angled wall ${ftin(Math.abs(d))}` : "Not moved";
     } else {
-      const parts = [];
-      for(const s of [s1, s2]){
-        const sn = snapLine(s.ax === 0 ? p.x : p.y, s, scale);
-        moveWall(b, H, s, sn.v);
-        if(sn.guide) drag.guide = sn.guide;
-        const d = sn.v - s.c;
-        if(d) parts.push(`${ftin(Math.abs(d))} ${dirWord(s.ax, d)}`);
-      }
-      live = parts.length ? "Moved " + parts.join(", ") : "Not moved";
+      const sn = snapLine(s.ax === 0 ? p[0] : p[1], s, scale);
+      moveSeg(H, s, sn.v); drag.guide = sn.guide;
+      const d = sn.v - s.c;
+      live = d ? `Moved ${ftin(Math.abs(d))} ${dirWord(s.ax, d)}` : "Not moved";
     }
+  } else if(drag.type === "corner"){
+    let res = null;
+    if(opts.square && !drag.alt) res = squareCornerMove(H, sel.i, drag.v, p, scale);
+    if(!res){ H = clone(b); res = freeCornerMove(H, sel.i, drag.v, p, scale); }
+    drag.guide = res.guide; live = res.text;
   } else if(drag.type === "opMove" || drag.type === "opEnd"){
-    const o0 = b.openings[sel.i], horiz = near(o0.a[1], o0.b[1]), ax = horiz ? 0 : 1;
-    const o = H.openings[sel.i];
+    const o0 = b.openings[sel.i], o = H.openings[sel.i], uu = unit(o0.a, o0.b), axis = isAxis(o0.a, o0.b);
+    const fix = q => axis ? [Math.round(q[0]), Math.round(q[1])] : [r2(q[0]), r2(q[1])];
     if(drag.type === "opMove"){
-      const d = Math.round((ax === 0 ? p.x : p.y) - (ax === 0 ? drag.start.x : drag.start.y));
-      o.a[ax] = o0.a[ax] + d; o.b[ax] = o0.b[ax] + d;
-      live = d ? `Slid ${ftin(Math.abs(d))} ${dirWord(ax, d)}` : "";
+      const t = Math.round(dot([p[0] - drag.start[0], p[1] - drag.start[1]], uu));
+      o.a = fix([o0.a[0] + uu[0] * t, o0.a[1] + uu[1] * t]); o.b = fix([o0.b[0] + uu[0] * t, o0.b[1] + uu[1] * t]);
+      live = t ? `Slid ${ftin(Math.abs(t))} along the wall` : "";
     } else {
-      const other = drag.end === "a" ? "b" : "a";
-      let v = Math.round(ax === 0 ? p.x : p.y);
-      if(Math.abs(v - o0[other][ax]) < 6) v = o0[other][ax] + (v >= o0[other][ax] ? 6 : -6);
-      o[drag.end][ax] = v;
-      live = `Width ${ftin(Math.abs(o.b[ax] - o.a[ax]))}`;
+      const other = drag.end === "a" ? "b" : "a", O = o0[other], dv = unit(O, o0[drag.end]);
+      const t = Math.max(6, Math.round(dot([p[0] - O[0], p[1] - O[1]], dv)));
+      o[drag.end] = fix([O[0] + dv[0] * t, O[1] + dv[1] * t]);
+      live = `Width ${ftin(t)}`;
     }
   } else if(drag.type === "fxMove"){
-    const dx = Math.round(p.x - drag.start.x), dy = Math.round(p.y - drag.start.y);
+    const dx = Math.round(p[0] - drag.start[0]), dy = Math.round(p[1] - drag.start[1]);
     H.fixtures[sel.i].poly = b.fixtures[sel.i].poly.map(q => [q[0] + dx, q[1] + dy]);
-    live = "";
   } else if(drag.type === "fxVtx"){
-    H.fixtures[sel.i].poly[drag.v] = [Math.round(p.x), Math.round(p.y)];
+    const f0 = b.fixtures[sel.i].poly, f = H.fixtures[sel.i].poly, v = drag.v, np = [Math.round(p[0]), Math.round(p[1])];
+    if(isRect(f0)){
+      const P = f0[v];
+      f0.forEach((q, j) => { if(j === v) return; if(near(q[0], P[0])) f[j][0] = np[0]; if(near(q[1], P[1])) f[j][1] = np[1]; });
+      f[v] = np;
+      const bb = bbox(f);
+      live = `${ftin(bb.y1 - bb.y0)} side to side, ${ftin(bb.x1 - bb.x0)} front to back`;
+    } else f[v] = np;
   } else if(drag.type === "camMove"){
     const ph = H.tour[sel.r].photos[sel.p];
-    ph.x = Math.round(p.x); ph.y = Math.round(p.y);
+    ph.x = Math.round(p[0]); ph.y = Math.round(p[1]);
     live = "Moving the photo spot";
   } else if(drag.type === "camRot"){
     const ph = H.tour[sel.r].photos[sel.p];
-    let a = Math.round(Math.atan2(p.y - ph.y, p.x - ph.x) * 180 / Math.PI / 5) * 5;
+    let a = Math.round(Math.atan2(p[1] - ph.y, p[0] - ph.x) * 180 / Math.PI / 5) * 5;
     if(a <= -180) a += 360;
     ph.dir = a;
     live = `Facing ${facingWords(a)} (${a}°)`;
   } else if(drag.type === "lblMove"){
-    H.rooms[drag.lbl !== undefined ? drag.lbl : sel.i].label = [Math.round(p.x), Math.round(p.y)];
+    H.rooms[sel.i].label = [Math.round(p[0]), Math.round(p[1])];
   }
   render(); renderPanel(true);
 });
@@ -610,8 +794,21 @@ function endDrag(){
     if(!d.moved && d.click){ sel = d.click === "none" ? null : d.click; renderPanel(); }
     render(); return;
   }
+  if(!d.moved){
+    /* a click on a corner or wall square selects it for the panel */
+    if(d.type === "corner"){ sel.v = d.v; sel.e = null; }
+    else if(d.type === "wall"){ sel.e = d.e; sel.v = null; }
+    render(); renderPanel(); return;
+  }
   live = "";
-  if(d.moved && JSON.stringify(H) !== d.baseJson) commit(d.baseJson);
+  const counts = d.base.rooms.map(r => r.poly.length).join();
+  cleanAll(H);
+  if(sel && sel.k === "room"){
+    if(H.rooms.map(r => r.poly.length).join() !== counts){ sel.e = null; sel.v = null; }
+    else if(d.type === "wall"){ sel.e = d.e; sel.v = null; }
+    else if(d.type === "corner"){ sel.v = d.v; sel.e = null; }
+  }
+  if(JSON.stringify(H) !== d.baseJson) commit(d.baseJson);
   render(); renderPanel();
 }
 svg.addEventListener("pointerup", endDrag);
@@ -621,49 +818,74 @@ svg.addEventListener("wheel", e => {
   const c = rootPoint(e);
   zoomAt(Math.exp(e.deltaY * 0.0015), c.x, c.y);
 }, {passive:false});
+/* double-click a wall of the selected room to add a corner there. The plan redraws between clicks, so the
+   browser's own dblclick never fires; two presses close together count instead */
+let lastDown = null;
+function tryAddCorner(p){
+  if(!sel || sel.k !== "room" || !H.rooms[sel.i]) return false;
+  const poly = H.rooms[sel.i].poly, tol = 14 / scaleNow();
+  let best = null;
+  poly.forEach((a, k) => { const sd = segDist(p, a, poly[(k + 1) % poly.length]); if(sd.d < tol && (!best || sd.d < best.d)) best = {d:sd.d, e:k}; });
+  if(!best) return false;
+  const ri = sel.i;
+  let added = false;
+  change(() => { added = addCorner(H, ri, best.e, p); });
+  if(added && sel && sel.k === "room"){ sel.v = best.e + 1; sel.e = null; live = "Added a corner. Drag the wall square on either side of it to step that part of the wall in or out."; render(); renderPanel(); }
+  return added;
+}
 
-/* ---------- adding a door or window ---------- */
-function placeOpening(p){
-  const scale = scaleNow(), tol = 16 / scale;
+/* ---------- adding things ---------- */
+function placeNew(p){
+  const [kind, type] = $("addType").value.split(":");
+  if(kind === "fx") placeFixture(p, type); else placeOpening(p, type);
+}
+function placeFixture(p, type){
+  const [name, w, dd] = FXTYPES[type];
+  const cx = Math.round(p[0]), cy = Math.round(p[1]);
+  const x0 = cx - Math.round(dd / 2), y0 = cy - Math.round(w / 2);
+  change(() => {
+    H.fixtures.push({cls:type, poly:[[x0, y0], [x0 + dd, y0], [x0 + dd, y0 + w], [x0, y0 + w]]});
+    sel = {k:"fx", i:H.fixtures.length - 1};
+  });
+  setAdd(false);
+  live = `Added a ${name.toLowerCase()}. Drag it into place, or type its size on the right.`;
+  render();
+}
+function placeOpening(p, type){
+  const tol = 16 / scaleNow();
   let best = null;
   H.rooms.forEach(r => {
     if(r.kind === "outdoor") return;
     r.poly.forEach((a, e) => {
       const b = r.poly[(e + 1) % r.poly.length];
-      if(!isAxis(a, b)) return;
-      const ax = near(a[0], b[0]) ? 0 : 1, bx = 1 - ax;
-      const lo = Math.min(a[bx], b[bx]), hi = Math.max(a[bx], b[bx]);
-      const along = Math.max(lo, Math.min(hi, bx === 0 ? p.x : p.y));
-      const dist = Math.abs((ax === 0 ? p.x : p.y) - a[ax]) + Math.max(0, Math.abs((bx === 0 ? p.x : p.y) - along));
-      if(dist < tol && (!best || dist < best.dist)) best = {ax, bx, c:a[ax], lo, hi, along, dist};
+      if(dist(a, b) < 6) return;
+      const sd = segDist(p, a, b);
+      if(sd.d < tol && (!best || sd.d < best.d)) best = {...sd, a, b};
     });
   });
   if(!best){ live = "Click right on a wall to place it"; render(); return; }
-  const type = $("addType").value, w = Math.min(TYPES[type][1], best.hi - best.lo);
-  let mid = Math.round(best.along);
-  mid = Math.max(best.lo + w / 2, Math.min(best.hi - w / 2, mid));
-  const a = [0, 0], b = [0, 0];
-  a[best.ax] = b[best.ax] = best.c;
-  a[best.bx] = Math.round(mid - w / 2); b[best.bx] = a[best.bx] + w;
-  /* an outside wall has rooms on one side only */
-  const probe = 4, pt1 = [0, 0], pt2 = [0, 0];
-  pt1[best.ax] = best.c - probe; pt2[best.ax] = best.c + probe; pt1[best.bx] = pt2[best.bx] = mid;
+  const axis = isAxis(best.a, best.b), w = Math.min(OPTYPES[type][1], best.L);
+  let t = axis ? Math.round(best.t) : best.t;
+  t = Math.max(w / 2, Math.min(best.L - w / 2, t));
+  const at = k => { const q = [best.a[0] + best.u[0] * k, best.a[1] + best.u[1] * k]; return axis ? [Math.round(q[0]), Math.round(q[1])] : [r2(q[0]), r2(q[1])]; };
+  const a = at(t - w / 2), b = at(t + w / 2), mid = at(t);
+  const nrm = PD.sideNormal({a, b, side:1});
   const hit = q => H.rooms.some(r => r.kind !== "outdoor" && inside(r.poly, q[0], q[1]));
-  const ext = !(hit(pt1) && hit(pt2));
-  const side = hit(pt2) ? 1 : -1;
+  const s1 = hit([mid[0] + nrm[0] * 4, mid[1] + nrm[1] * 4]), s2 = hit([mid[0] - nrm[0] * 4, mid[1] - nrm[1] * 4]);
   change(() => {
-    H.openings.push({type, a, b, side, hinge:"a", ext});
+    H.openings.push({type, a, b, side:s1 ? 1 : -1, hinge:"a", ext:!(s1 && s2)});
     sel = {k:"op", i:H.openings.length - 1};
   });
   setAdd(false);
-  live = `Added ${TYPES[type][0].toLowerCase()}`;
+  live = `Added ${OPTYPES[type][0].toLowerCase()}`;
   render();
 }
 function setAdd(on){
   addMode = on;
   $("addBtn").classList.toggle("on", on);
-  $("addBtn").textContent = on ? "Click a wall (Esc to stop)" : "Add to a wall";
-  live = on ? "Click on a wall where the new one should go" : "";
+  $("addBtn").textContent = on ? "Click the plan (Esc to stop)" : "Add";
+  const fx = $("addType").value.startsWith("fx");
+  live = on ? (fx ? "Click where it should go" : "Click on a wall where it should go") : "";
   render();
 }
 
@@ -676,21 +898,21 @@ function spotsList(onlyRoom){
       `<button type="button" data-spot="${r},${k}" aria-label="${esc(t.name)} photo ${k + 1}: ${esc(p.cap)}" aria-current="${sel && sel.k === "cam" && sel.r === r && sel.p === k}"><img src="thumbs/${esc(p.f)}.jpg" alt="" loading="lazy"></button>`).join("")}</div></div>`;
   }).join("");
 }
+function sizeHtml(r){
+  const b = bbox(r.poly), rect = isRect(r.poly);
+  return `<dt>Front to back</dt><dd>${rect ? "" : "up to "}${ftin(b.x1 - b.x0)}</dd><dt>Side to side</dt><dd>${rect ? "" : "up to "}${ftin(b.y1 - b.y0)}</dd>`;
+}
 function renderPanel(liveOnly){
   const P = $("panel");
   if(liveOnly){
-    /* during a drag, only refresh the numbers so typing focus isn't lost */
     const sz = P.querySelector("[data-size]");
-    if(sz && sel && sel.k === "room") sz.innerHTML = sizeHtml(H.rooms[sel.i]);
+    if(sz && sel && sel.k === "room" && H.rooms[sel.i]) sz.innerHTML = sizeHtml(H.rooms[sel.i]);
     if(sel && sel.k === "cam"){
       const ph = H.tour[sel.r].photos[sel.p];
       const fx = P.querySelector("#camX"), fy = P.querySelector("#camY"), fd = P.querySelector("#camDir"), fw = P.querySelector("[data-facing]");
       if(fx) fx.value = ph.x; if(fy) fy.value = ph.y; if(fd) fd.value = ph.dir; if(fw) fw.textContent = facingWords(ph.dir);
     }
-    if(sel && sel.k === "op"){
-      const o = H.openings[sel.i], fw = P.querySelector("#opW");
-      if(fw) fw.value = Math.round(Math.hypot(o.b[0] - o.a[0], o.b[1] - o.a[1]));
-    }
+    if(sel && sel.k === "op"){ const o = H.openings[sel.i], fw = P.querySelector("#opW"); if(fw) fw.value = Math.round(dist(o.a, o.b)); }
     return;
   }
   let s = "";
@@ -698,16 +920,18 @@ function renderPanel(liveOnly){
     s += `<div class="group"><h2>How to edit</h2>
       <ul class="help">
         <li><b>Click a room</b> to select it. Squares sit on its walls and circles on its corners.</li>
-        <li><b>Drag a square</b> to move that wall. Walls lined up with it move too, along with any doors, windows and counters on it.</li>
-        <li><b>Drag a corner</b> to move two walls at once. Hold <kbd>Alt</kbd> (<kbd>Option</kbd> on a Mac) to move only that point.</li>
-        <li><b>Drag a door or window</b> to slide it along its wall. Select it to resize it or change its type.</li>
+        <li><b>Drag a square</b> to move that wall. Walls lined up with it move too, along with any doors, windows and fixtures on it.</li>
+        <li><b>Double-click a wall</b> of the selected room to add a corner. Then drag the square on either side of the new corner to step just that part of the wall in or out. The room next door follows.</li>
+        <li><b>Click a corner</b> to remove it, type where it goes, or cut it off at an angle (with doors on the angle if you like).</li>
+        <li><b>Drag a corner</b> to move its two walls. Turn off <b>Keep corners square</b> to drag it to any angle; it snaps to other rooms' corners.</li>
+        <li><b>Add</b> doors, windows and fixtures such as a shower or tub from the menu at the top, then click where they go.</li>
         <li><b>Drag a photo spot</b> to move it, and drag its round handle to turn it.</li>
-        <li><b>Drag empty space</b> to move around, and use the mouse wheel or the + and &minus; buttons to zoom.</li>
+        <li><b>Drag empty space</b> to move around, and use the mouse wheel or + and &minus; to zoom.</li>
       </ul></div>
       <div class="group"><h3>Keys</h3><div class="keys">
         <kbd>Ctrl</kbd><span>+ Z undo, + Shift + Z redo (Cmd on a Mac)</span>
-        <kbd>Arrows</kbd><span>nudge the selected wall, door or spot 1 inch (hold Shift for 1 foot)</span>
-        <kbd>Delete</kbd><span>remove the selected door, window or fixture</span>
+        <kbd>Arrows</kbd><span>nudge the selected wall, door, fixture or spot 1 inch (hold Shift for 1 foot)</span>
+        <kbd>Delete</kbd><span>remove the selected corner, door, window or fixture</span>
         <kbd>Esc</kbd><span>clear the selection</span>
       </div></div>
       <div class="group"><h3>Photo spots</h3><div class="spots">${spotsList()}</div></div>`;
@@ -715,17 +939,26 @@ function renderPanel(liveOnly){
     const r = H.rooms[sel.i], t = H.tour.find(q => q.id === r.id);
     s += `<div class="group"><h2>${esc(roomName(r))}</h2><p class="sub">${t ? `${t.photos.length} photo${t.photos.length === 1 ? "" : "s"} in the tour` : "No photos"}</p>
       <dl class="size" data-size>${sizeHtml(r)}</dl></div>`;
-    if(sel.e !== null && sel.e !== undefined){
+    if(sel.v != null && r.poly[sel.v]){
+      const q = r.poly[sel.v];
+      s += `<div class="group"><h3>Selected corner</h3>
+        <div class="row">${field("x (toward the street)", `<input type="number" id="vX" step="1" value="${q[0]}">`)}${field("y (toward the garage)", `<input type="number" id="vY" step="1" value="${q[1]}">`)}<button type="button" class="btn" id="vApply">Move it</button></div>
+        <p class="sub">Typing numbers moves only this corner, so its walls may end up at an angle.</p>
+        <div class="row">${field("Cut off at an angle, inches along each wall", `<input type="number" id="cutL" min="2" step="1" value="34">`)}</div>
+        ${field("Put on the new angled wall", `<select id="cutOp"><option value="">Nothing</option><option value="double" selected>Double doors</option><option value="door">A door</option><option value="open">An open wall</option></select>`)}
+        <div class="row"><button type="button" class="btn primary" id="cutApply">Cut the corner</button><button type="button" class="btn danger" id="vDel"${r.poly.length <= 3 ? " disabled" : ""}>Remove this corner</button></div></div>`;
+    } else if(sel.e != null && r.poly[sel.e]){
       const opp = oppositeWall(H, sel.i, sel.e);
+      s += `<div class="group"><h3>Selected wall</h3>`;
       if(opp){
         const cur = Math.abs(opp.here - opp.c);
-        s += `<div class="group"><h3>Selected wall</h3>
-          <p class="sub">Type the size of the room across from this wall. This wall moves; the wall opposite stays put.</p>
+        s += `<p class="sub">Type the size of the room across from this wall. This wall moves; the wall opposite stays put.</p>
           <div class="row">${field("Feet", `<input type="number" id="szFt" min="0" step="1" value="${Math.floor(Math.round(cur) / 12)}">`)}${field("Inches", `<input type="number" id="szIn" min="0" max="11.5" step="0.5" value="${Math.round(cur) % 12}">`)}
-          <button type="button" class="btn primary" id="szApply">Apply</button></div></div>`;
+          <button type="button" class="btn primary" id="szApply">Apply</button></div>`;
       }
+      s += `<button type="button" class="btn" id="eSplit">Add a corner in the middle of this wall</button></div>`;
     } else {
-      s += `<p class="sub">Click one of the squares on a wall to type an exact room size.</p>`;
+      s += `<p class="sub">Click a wall's square to type an exact size, or a corner's circle to cut it at an angle. Double-click a wall to add a corner.</p>`;
     }
     s += `<div class="group"><h3>Name</h3>
       ${t ? field("Name in the tour", `<input type="text" id="tourName" value="${esc(t.name)}">`) : ""}
@@ -735,24 +968,26 @@ function renderPanel(liveOnly){
       <p class="sub">Drag the room's name on the plan to move it.</p></div>`;
     if(t) s += `<div class="group"><h3>Photo spots in this room</h3><div class="spots">${spotsList(t.id)}</div></div>`;
   } else if(sel.k === "op"){
-    const o = H.openings[sel.i], w = Math.round(Math.hypot(o.b[0] - o.a[0], o.b[1] - o.a[1]));
+    const o = H.openings[sel.i], w = Math.round(dist(o.a, o.b));
     const door = ["door", "double", "french", "bifold"].includes(o.type);
-    s += `<div class="group"><h2>${esc(TYPES[o.type] ? TYPES[o.type][0] : o.type)}</h2><p class="sub">Drag it to slide it along the wall, or drag its circles to resize it.</p></div>
+    s += `<div class="group"><h2>${esc(OPTYPES[o.type] ? OPTYPES[o.type][0] : o.type)}</h2><p class="sub">Drag it to slide it along the wall, or drag its circles to resize it.</p></div>
       <div class="group">
-      ${field("Type", `<select id="opType">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}"${o.type === k ? " selected" : ""}>${v[0]}</option>`).join("")}</select>`)}
+      ${field("Type", `<select id="opType">${Object.entries(OPTYPES).map(([k, v]) => `<option value="${k}"${o.type === k ? " selected" : ""}>${v[0]}</option>`).join("")}</select>`)}
       <div class="row">${field("Width in inches", `<input type="number" id="opW" min="6" step="1" value="${w}">`)}<button type="button" class="btn" id="opWApply">Apply</button></div>
       <div class="row">
-        ${door || o.type === "window" || o.type === "arched" ? `<button type="button" class="btn" id="opSide">Flip to the other side</button>` : ""}
+        ${door || o.type === "window" || o.type === "arched" ? `<button type="button" class="btn" id="opSide">Swing the other way</button>` : ""}
         ${o.type === "door" ? `<button type="button" class="btn" id="opHinge">Hinge on the other end</button>` : ""}
       </div>
       <label class="tog"><input type="checkbox" id="opExt"${o.ext ? " checked" : ""}> On an outside wall</label>
       ${o.type === "door" ? `<label class="tog"><input type="checkbox" id="opFront"${o.front ? " checked" : ""}> This is the front door</label>` : ""}
       </div>
-      <div class="group"><button type="button" class="btn danger" id="opDel">Remove this ${esc((TYPES[o.type] ? TYPES[o.type][0] : "opening").toLowerCase())}</button></div>`;
+      <div class="group"><button type="button" class="btn danger" id="opDel">Remove it</button></div>`;
   } else if(sel.k === "fx"){
-    const f = H.fixtures[sel.i];
-    s += `<div class="group"><h2>${esc(FXTYPES[f.cls || ""] || "Fixture")}</h2><p class="sub">Drag it to move it, or drag its circles to reshape it.</p></div>
-      <div class="group">${field("Type", `<select id="fxType">${Object.entries(FXTYPES).map(([k, v]) => `<option value="${k}"${(f.cls || "") === k ? " selected" : ""}>${v}</option>`).join("")}</select>`)}</div>
+    const f = H.fixtures[sel.i], rect = isRect(f.poly), b = bbox(f.poly);
+    s += `<div class="group"><h2>${esc((FXTYPES[f.cls || ""] || ["Fixture"])[0])}</h2><p class="sub">Drag it to move it, or drag its circles to resize it.</p></div>
+      <div class="group">${field("Type", `<select id="fxType">${Object.entries(FXTYPES).map(([k, v]) => `<option value="${k}"${(f.cls || "") === k ? " selected" : ""}>${v[0]}</option>`).join("")}</select>`)}
+      ${rect ? `<div class="row">${field("Side to side (in)", `<input type="number" id="fxW" min="2" step="1" value="${Math.round(b.y1 - b.y0)}">`)}${field("Front to back (in)", `<input type="number" id="fxD" min="2" step="1" value="${Math.round(b.x1 - b.x0)}">`)}<button type="button" class="btn" id="fxApply">Apply</button></div>
+      <button type="button" class="btn" id="fxTurn">Turn it a quarter turn</button>` : ""}</div>
       <div class="group"><button type="button" class="btn danger" id="fxDel">Remove it</button></div>`;
   } else if(sel.k === "cam"){
     const t = H.tour[sel.r], ph = t.photos[sel.p];
@@ -770,27 +1005,43 @@ function renderPanel(liveOnly){
   P.innerHTML = s;
   wirePanel();
 }
-function sizeHtml(r){
-  const b = bbox(r.poly);
-  const rect = r.poly.length === 4;
-  return `<dt>Front to back</dt><dd>${rect ? "" : "up to "}${ftin(b.x1 - b.x0)}</dd><dt>Side to side</dt><dd>${rect ? "" : "up to "}${ftin(b.y1 - b.y0)}</dd>`;
-}
 function wirePanel(){
   const P = $("panel"), on = (id, ev, fn) => { const el = P.querySelector("#" + id); if(el) el.addEventListener(ev, fn); };
+  const val = id => +P.querySelector("#" + id).value;
   P.querySelectorAll("[data-spot]").forEach(b => b.addEventListener("click", () => {
     const [r, k] = b.dataset.spot.split(",").map(Number);
     sel = {k:"cam", r, p:k}; centerOn(H.tour[r].photos[k]); renderPanel(); render();
   }));
   if(!sel) return;
   if(sel.k === "room"){
-    const r = () => H.rooms[sel.i];
+    const ri = sel.i, r = () => H.rooms[ri];
+    on("vApply", "click", () => { const v = sel.v, P0 = [...r().poly[v]], np = [Math.round(val("vX")), Math.round(val("vY"))]; change(() => { if(opts.connected) H.rooms.forEach(rr => rr.poly.forEach((q, j) => { if(same(q, P0)) rr.poly[j] = [...np]; })); else r().poly[v] = np; }); });
+    on("vDel", "click", () => { const v = sel.v; change(() => { if(r().poly.length > 3) r().poly.splice(v, 1); if(sel) sel.v = null; }); });
+    on("cutApply", "click", () => {
+      const v = sel.v, L = val("cutL"), opType = P.querySelector("#cutOp").value;
+      change(() => {
+        const cut = cutCorner(H, ri, v, L, opts.connected);
+        if(!cut){ live = "That cut is longer than one of the walls. Try a smaller number."; return; }
+        if(opType){
+          const nrm = PD.sideNormal({a:cut[0], b:cut[1], side:1}), mid = [(cut[0][0] + cut[1][0]) / 2, (cut[0][1] + cut[1][1]) / 2];
+          const into = inside(r().poly, mid[0] + nrm[0] * 4, mid[1] + nrm[1] * 4);
+          H.openings.push({type:opType, a:cut[0], b:cut[1], side:into ? 1 : -1, hinge:"a", ext:false});
+        }
+        live = opType ? "Cut the corner and added the doors. Select them to swing them the other way." : "Cut the corner";
+        if(sel) sel.v = null;
+      });
+    });
     on("szApply", "click", () => {
-      const v = (+P.querySelector("#szFt").value || 0) * 12 + (+P.querySelector("#szIn").value || 0);
-      const opp = oppositeWall(H, sel.i, sel.e);
+      const v = val("szFt") * 12 + val("szIn"), opp = oppositeWall(H, ri, sel.e);
       if(!opp || v <= 0) return;
-      const s = wallSpec(H, sel.i, sel.e, opts.connected);
-      const newC = opp.c + Math.sign(opp.here - opp.c) * v;
-      change(() => { const base = clone(H); moveWall(base, H, s, newC); });
+      const s = wallSpec(H, ri, sel.e, opts.connected), newC = opp.c + Math.sign(opp.here - opp.c) * v;
+      change(() => moveSeg(H, s, newC));
+    });
+    on("eSplit", "click", () => {
+      const e = sel.e, [a, b] = edgeAt(r().poly, e);
+      let added = false;
+      change(() => { added = addCorner(H, ri, e, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]); });
+      if(added && sel){ sel.v = e + 1; sel.e = null; renderPanel(); render(); }
     });
     on("tourName", "change", e => change(() => { const t = H.tour.find(q => q.id === r().id); if(t && e.target.value.trim()) t.name = e.target.value.trim(); }));
     on("lblLines", "change", e => change(() => { const v = e.target.value.split("/").map(x => x.trim()).filter(Boolean); if(v.length){ r().lines = v; if(!r().label){ const b = bbox(r().poly); r().label = [Math.round((b.x0 + b.x1) / 2), Math.round((b.y0 + b.y1) / 2)]; } } else { delete r().lines; delete r().label; } }));
@@ -800,8 +1051,8 @@ function wirePanel(){
     const o = () => H.openings[sel.i];
     on("opType", "change", e => change(() => { o().type = e.target.value; if(o().type !== "door") delete o().front; }));
     on("opWApply", "click", () => {
-      const w = Math.max(6, Math.round(+P.querySelector("#opW").value || 0));
-      change(() => { const q = o(), ax = near(q.a[1], q.b[1]) ? 0 : 1, mid = (q.a[ax] + q.b[ax]) / 2, sgn = q.b[ax] >= q.a[ax] ? 1 : -1; q.a[ax] = Math.round(mid - sgn * w / 2); q.b[ax] = q.a[ax] + sgn * w; });
+      const w = Math.max(6, Math.round(val("opW")));
+      change(() => { const q = o(), uu = unit(q.a, q.b), mid = [(q.a[0] + q.b[0]) / 2, (q.a[1] + q.b[1]) / 2], axis = isAxis(q.a, q.b), fix = p => axis ? [Math.round(p[0]), Math.round(p[1])] : [r2(p[0]), r2(p[1])]; q.a = fix([mid[0] - uu[0] * w / 2, mid[1] - uu[1] * w / 2]); q.b = fix([mid[0] + uu[0] * w / 2, mid[1] + uu[1] * w / 2]); });
     });
     on("opSide", "click", () => change(() => { o().side = -o().side; }));
     on("opHinge", "click", () => change(() => { o().hinge = o().hinge === "b" ? "a" : "b"; }));
@@ -809,7 +1060,10 @@ function wirePanel(){
     on("opFront", "change", e => change(() => { H.openings.forEach(q => delete q.front); if(e.target.checked) o().front = true; }));
     on("opDel", "click", () => change(() => { H.openings.splice(sel.i, 1); sel = null; }));
   } else if(sel.k === "fx"){
-    on("fxType", "change", e => change(() => { H.fixtures[sel.i].cls = e.target.value; }));
+    const f = () => H.fixtures[sel.i];
+    on("fxType", "change", e => change(() => { f().cls = e.target.value; }));
+    on("fxApply", "click", () => { const w = Math.max(2, Math.round(val("fxW"))), d = Math.max(2, Math.round(val("fxD"))); change(() => { const b = bbox(f().poly); f().poly = [[b.x0, b.y0], [b.x0 + d, b.y0], [b.x0 + d, b.y0 + w], [b.x0, b.y0 + w]]; }); });
+    on("fxTurn", "click", () => change(() => { const b = bbox(f().poly), cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2, w = b.y1 - b.y0, d = b.x1 - b.x0, x0 = Math.round(cx - w / 2), y0 = Math.round(cy - d / 2); f().poly = [[x0, y0], [x0 + w, y0], [x0 + w, y0 + d], [x0, y0 + d]]; }));
     on("fxDel", "click", () => change(() => { H.fixtures.splice(sel.i, 1); sel = null; }));
   } else if(sel.k === "cam"){
     const ph = () => H.tour[sel.r].photos[sel.p];
@@ -828,11 +1082,8 @@ function wirePanel(){
 }
 function centerOn(ph){
   const [sx, sy] = PD.toScreen([ph.x, ph.y]);
-  const b = svg.getBoundingClientRect();
-  /* keep the spot comfortably inside the view without changing the zoom unless it's far out */
   if(vb.w > 700){ const f = 520 / vb.w; vb.w *= f; vb.h *= f; }
   vb.x = sx - vb.w / 2; vb.y = sy - vb.h / 2;
-  if(!b.width) return;
 }
 
 /* ---------- keyboard ---------- */
@@ -850,24 +1101,27 @@ window.addEventListener("keydown", e => {
   if((e.key === "Delete" || e.key === "Backspace") && sel){
     if(sel.k === "op"){ e.preventDefault(); change(() => { H.openings.splice(sel.i, 1); sel = null; }); }
     else if(sel.k === "fx"){ e.preventDefault(); change(() => { H.fixtures.splice(sel.i, 1); sel = null; }); }
+    else if(sel.k === "room" && sel.v != null){ e.preventDefault(); const ri = sel.i, v = sel.v; change(() => { if(H.rooms[ri].poly.length > 3) H.rooms[ri].poly.splice(v, 1); if(sel) sel.v = null; }); }
     return;
   }
   const arrows = {ArrowDown:[1, 0], ArrowUp:[-1, 0], ArrowRight:[0, -1], ArrowLeft:[0, 1]};   /* screen direction to plan inches */
   if(arrows[e.key] && sel){
     e.preventDefault();
-    const step = e.shiftKey ? 12 : 1, [dx, dy] = arrows[e.key].map(v => v * step);
+    const step = e.shiftKey ? 12 : 1, mv = arrows[e.key].map(v => v * step);
     change(() => {
-      if(sel.k === "room" && sel.e !== null && sel.e !== undefined){
+      if(sel.k === "room" && sel.e != null){
         const s = wallSpec(H, sel.i, sel.e, opts.connected); if(!s) return;
-        const d = s.ax === 0 ? dx : dy; if(!d) return;
-        const base = clone(H); moveWall(base, H, s, s.c + d);
+        if(s.angled){ const k = dot(mv, s.n); if(Math.abs(k) > 0.3) moveAngled(H, s, Math.sign(k) * step); return; }
+        const d = s.ax === 0 ? mv[0] : mv[1]; if(d) moveSeg(H, s, s.c + d);
       } else if(sel.k === "op"){
-        const o = H.openings[sel.i], ax = near(o.a[1], o.b[1]) ? 0 : 1, d = ax === 0 ? dx : dy;
-        o.a[ax] += d; o.b[ax] += d;
+        const o = H.openings[sel.i], uu = unit(o.a, o.b), k = dot(mv, uu);
+        if(Math.abs(k) < 0.3) return;
+        const t = Math.sign(k) * step, axis = isAxis(o.a, o.b), fix = p => axis ? [Math.round(p[0]), Math.round(p[1])] : [r2(p[0]), r2(p[1])];
+        o.a = fix([o.a[0] + uu[0] * t, o.a[1] + uu[1] * t]); o.b = fix([o.b[0] + uu[0] * t, o.b[1] + uu[1] * t]);
       } else if(sel.k === "fx"){
-        H.fixtures[sel.i].poly.forEach(q => { q[0] += dx; q[1] += dy; });
+        H.fixtures[sel.i].poly.forEach(q => { q[0] += mv[0]; q[1] += mv[1]; });
       } else if(sel.k === "cam"){
-        const ph = H.tour[sel.r].photos[sel.p]; ph.x += dx; ph.y += dy;
+        const ph = H.tour[sel.r].photos[sel.p]; ph.x += mv[0]; ph.y += mv[1];
       }
     });
   }
@@ -878,7 +1132,9 @@ $("undo").addEventListener("click", undo);
 $("redo").addEventListener("click", redo);
 $("optConnected").addEventListener("change", e => { opts.connected = e.target.checked; });
 $("optSnap").addEventListener("change", e => { opts.snap = e.target.checked; });
+$("optSquare").addEventListener("change", e => { opts.square = e.target.checked; });
 $("addBtn").addEventListener("click", () => setAdd(!addMode));
+$("addType").addEventListener("change", () => { if(addMode) setAdd(true); });
 ["lyOp", "lyFx", "lyLbl", "lyCam"].forEach(id => $(id).addEventListener("change", render));
 $("zin").addEventListener("click", () => zoomAt(1 / 1.3, vb.x + vb.w / 2, vb.y + vb.h / 2));
 $("zout").addEventListener("click", () => zoomAt(1.3, vb.x + vb.w / 2, vb.y + vb.h / 2));
@@ -893,8 +1149,7 @@ function ghEditUrl(){
   return `https://github.com/${owner}/${repo}/edit/main/plan-data.js`;
 }
 function openSave(){
-  const text = PD.serialize(H);
-  $("fileText").value = text;
+  $("fileText").value = PD.serialize(H);
   $("ghLink").href = ghEditUrl();
   $("copyMsg").textContent = "";
   $("saveDlg").hidden = false;
@@ -934,7 +1189,12 @@ new ResizeObserver(() => {
 $("draftBar").hidden = !draftOnLoad;
 setStatus();
 renderPanel();
-window.__editor = {get house(){ return H; }, get sel(){ return sel; }, serialize:() => PD.serialize(H), undo, redo};
+/* used by automated checks */
+window.__editor = {
+  get house(){ return H; }, get sel(){ return sel; },
+  serialize:() => PD.serialize(H), undo, redo,
+  run:fn => change(() => fn(H, {wallSpec, moveSeg, cutCorner, addCorner}))
+};
 })();
 </script>
 </body>
