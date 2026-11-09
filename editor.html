@@ -277,7 +277,7 @@ const TOL = 0.01;
 const near = (a, b) => Math.abs(a - b) < TOL;
 const same = (p, q) => near(p[0], q[0]) && near(p[1], q[1]);
 const esc = PD.esc;
-const NAMES = {coat:"Coat closet", hcl1:"Hall closet", hcl2:"Second hall closet", pantry:"Pantry", garage:"Garage", store:"Storeroom", porch1:"Main porch", porch2:"Kitchen porch"};
+const NAMES = {coat:"Coat closet", b2closet:"Bedroom 2 closet", hcl1:"Hall closet", hcl2:"Second hall closet", pantry:"Pantry", garage:"Garage", store:"Storeroom", porch1:"Main porch", porch2:"Kitchen porch"};
 const OPTYPES = {door:["Door",32], double:["Double doors",60], french:["French doors (red)",60], bifold:["Bifold doors",48], window:["Window",36], arched:["Arched window",60], open:["Open wall",48], garage:["Garage door",192]};
 /* fixture: [name, size side to side, size front to back] in inches */
 const FXTYPES = {shower:["Shower",48,36], tub:["Tub",60,30], toilet:["Toilet",20,28], vanity:["Vanity (sink)",48,22], "":["Counter or cabinet",48,24], closet:["Closet or built-in",48,24], col:["Column",10,10]};
