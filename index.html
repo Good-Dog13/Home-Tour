@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A photo tour of the new house.">
+<title>New House Photo Tour</title>
+<style>
+/* Layout: two screens. Home pairs the house plan with a numbered room list (the tour order).
+   Room shows one photo at a time, big Previous/Next buttons, and a zoomed plan marking where the camera stood. */
+:root{
+  --bg:#F1F3EE; --card:#FFFFFF; --sheet:#F7F8F4; --ink:#1C2826; --muted:#55625E; --line:#D3D9D1;
+  --floor:#FFFFFF; --floor-off:#E6EAE2; --wall:#26332F; --stage:#1E2725; --on-stage:#F1F3EE;
+  --accent:#1D6B58; --accent-hover:#175747; --on-accent:#FFFFFF; --accent-soft:#D9EAE2;
+  --mark:#D4561C; --red:#A5383A;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111715; --card:#19211E; --sheet:#161D1A; --ink:#E5ECE7; --muted:#9DABA4; --line:#2D3833;
+    --floor:#26312C; --floor-off:#1C2420; --wall:#C9D5CF; --stage:#0A0E0C; --on-stage:#E5ECE7;
+    --accent:#6CC9AB; --accent-hover:#8AD7BE; --on-accent:#0D1A15; --accent-soft:#1E3A30;
+    --mark:#FF8A50; --red:#E5807F;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111715; --card:#19211E; --sheet:#161D1A; --ink:#E5ECE7; --muted:#9DABA4; --line:#2D3833;
+  --floor:#26312C; --floor-off:#1C2420; --wall:#C9D5CF; --stage:#0A0E0C; --on-stage:#E5ECE7;
+  --accent:#6CC9AB; --accent-hover:#8AD7BE; --on-accent:#0D1A15; --accent-soft:#1E3A30;
+  --mark:#FF8A50; --red:#E5807F;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+img{max-width:100%}
+html{-webkit-text-size-adjust:100%}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url("fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2")}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 var(--body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--bg)}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
+p{margin:0}
+.ico{width:1.2em;height:1.2em;flex:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.55em;min-height:58px;padding:10px 22px;
+  border-radius:14px;border:2px solid var(--accent);background:var(--card);color:var(--accent);
+  font:700 1.05rem/1.2 var(--body);text-align:left}
+.btn:hover{border-color:var(--accent-hover);color:var(--accent-hover)}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:var(--on-accent)}
+
+/* ---------- home ---------- */
+.home{max-width:1220px;margin:0 auto;padding-block:28px 20px;display:grid;gap:24px;grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"intro" "plan" "list" "foot"}
+.intro{grid-area:intro;display:flex;flex-direction:column;gap:14px}
+.intro h1{font-size:clamp(2rem, 6vw, 3rem);font-weight:780;line-height:1.02;letter-spacing:-.015em}
+.intro .lead{font-size:1.1rem;max-width:34ch;color:var(--ink)}
+.startrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:4px}
+.startrow .btn{font-size:1.2rem;min-height:64px;padding-inline:26px}
+.startrow small{color:var(--muted);font-size:.95rem}
+.done{display:flex;gap:10px;align-items:center;background:var(--accent-soft);border-radius:12px;padding:12px 14px;font-weight:700}
+.done .ico{color:var(--accent)}
+.plancard{grid-area:plan;background:var(--sheet);border:1px solid var(--line);border-radius:20px;padding:14px;align-self:start;min-width:0}
+.plancard svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.92rem;color:var(--muted);margin-top:10px;padding-inline:4px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:22px;height:16px;border:2px solid var(--wall);border-radius:3px;display:inline-block}
+.sw.on{background:var(--floor)} .sw.off{background:var(--floor-off)}
+.list{grid-area:list;min-width:0}
+.list h2{font-size:1.3rem;font-weight:700;margin-bottom:12px}
+.roomlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.roomlist button{width:100%;display:grid;grid-template-columns:1.7em 84px minmax(0,1fr);align-items:center;gap:14px;
+  min-height:76px;padding:8px 14px 8px 10px;background:var(--card);border:1px solid var(--line);border-radius:14px;text-align:left}
+.roomlist button:hover{border-color:var(--accent);background:var(--accent-soft)}
+.roomlist .n{font:700 1rem var(--display);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.roomlist img{width:84px;height:63px;object-fit:cover;border-radius:8px;display:block;background:var(--floor-off)}
+.roomlist b{display:block;font-size:1.1rem;line-height:1.25}
+.roomlist span.c{display:block;color:var(--muted);font-size:.92rem}
+.foot{grid-area:foot;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:599px){ .plancard{padding:6px;border-radius:16px} .legend{padding:0 6px 6px} }
+@media (min-width:600px) and (max-width:959px){ .roomlist{grid-template-columns:1fr 1fr} }
+@media (min-width:960px){
+  .home{grid-template-columns:minmax(0,400px) minmax(0,1fr);grid-template-areas:"intro plan" "list plan" "foot foot";column-gap:40px;align-items:start}
+  .plancard{position:sticky;top:calc(env(safe-area-inset-top, 0px) + 20px);grid-row:1 / span 2}
+}
+
+/* ---------- room ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;padding-block:10px;max-width:1280px;margin:0 auto}
+.bar .btn{min-height:54px;padding-inline:14px 18px;flex:none}
+.bar .t{min-width:0}
+.bar h1{font-size:clamp(1.35rem, 4.6vw, 2rem);font-weight:760;line-height:1.08}
+.bar p{color:var(--muted);font-size:.95rem}
+.roomgrid{max-width:1280px;margin:0 auto;padding-block:16px 20px;display:grid;gap:16px;grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"view" "steps" "side" "foot"}
+.viewer{grid-area:view;margin:0;min-width:0;scroll-margin-top:90px}
+.stagebtn{display:block;width:100%;padding:0;border:0;background:var(--stage);border-radius:16px;overflow:hidden;
+  height:clamp(220px, 48vh, 760px);height:clamp(220px, 48svh, 760px);position:relative}
+.stagebtn img{width:100%;height:100%;object-fit:contain;display:block}
+.stagebtn .zoom{position:absolute;right:10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;
+  background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:.85rem;font-weight:700;opacity:.92}
+.viewer figcaption{padding:12px 4px 0;display:flex;flex-direction:column;gap:2px}
+.viewer .count{font:700 .9rem var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.viewer .cap{font-size:1.12rem;line-height:1.4}
+.steps{grid-area:steps;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:12px}
+.steps .btn{min-height:68px;padding-inline:14px;width:100%}
+.steps .btn span{display:flex;flex-direction:column;min-width:0}
+.steps .k{font-size:.82rem;font-weight:400;opacity:.85}
+.steps .k:empty{display:none}
+.steps .v{overflow-wrap:anywhere}
+#next{justify-content:space-between}
+#prev{justify-content:flex-start}
+.side{grid-area:side;display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+.card h2{font-size:1.1rem;font-weight:700;margin-bottom:10px}
+#mini{display:block;width:100%;aspect-ratio:4 / 3;background:var(--sheet);border-radius:12px;pointer-events:none}
+.key{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:.95rem;color:var(--muted)}
+.key svg{flex:none;width:34px;height:26px;margin-top:2px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill, minmax(84px, 1fr));gap:8px}
+.thumbs button{padding:0;border:3px solid transparent;border-radius:10px;overflow:hidden;background:var(--floor-off);aspect-ratio:4 / 3;display:block}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs button[aria-current="true"]{border-color:var(--accent)}
+.thumbs button:hover{border-color:var(--accent-hover)}
+.roomgrid .foot{grid-area:foot}
+@media (min-width:960px){
+  .roomgrid{grid-template-columns:minmax(0,1fr) 370px;grid-template-areas:"view side" "steps side" "foot foot";align-items:start;column-gap:24px}
+  .stagebtn{height:clamp(320px, calc(100vh - 290px), 820px);height:clamp(320px, calc(100svh - 290px), 820px)}
+}
+
+/* ---------- big photo ---------- */
+.big{position:fixed;inset:0;z-index:20;background:var(--stage);display:flex;flex-direction:column;
+  padding:calc(env(safe-area-inset-top, 0px) + 12px) max(12px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 12px) max(12px, env(safe-area-inset-left, 0px))}
+.big .btn{align-self:flex-end;background:var(--card);color:var(--ink);border-color:var(--card)}
+.big .btn:hover{color:var(--ink);border-color:var(--accent)}
+.big img{flex:1;min-height:0;width:100%;object-fit:contain;margin-top:12px}
+.big p{color:var(--on-stage);text-align:center;padding-top:8px;font-size:1rem}
+
+/* ---------- plan drawing ---------- */
+.room{fill:var(--floor-off);stroke:none}
+.room.has{fill:var(--floor)}
+.room.outdoor{fill:none}
+#plan .room.has{cursor:pointer}
+#plan .room.has:hover,#plan .room.has:focus-visible{fill:var(--accent-soft)}
+#plan .room:focus{outline:none}
+.walls{fill:none;stroke:var(--wall);stroke-width:5;stroke-linejoin:miter;stroke-linecap:square}
+.walls.dashed{stroke-width:2;stroke-dasharray:8 6;stroke:var(--muted)}
+.gap{stroke:none}
+.gap.int{fill:var(--floor)}
+.gap.ext{fill:var(--sheet)}
+.leaf{stroke:var(--wall);stroke-width:1.4;fill:none}
+.leaf.red{stroke:var(--red);stroke-width:2.4}
+.arc{stroke:var(--muted);stroke-width:.8;fill:none;stroke-dasharray:3 3}
+.glass{stroke:var(--wall);stroke-width:1;fill:none}
+.openline{stroke:var(--muted);stroke-width:1;stroke-dasharray:5 4;fill:none}
+.gdoor{stroke:var(--wall);stroke-width:1.4;stroke-dasharray:8 4;fill:none}
+.fx{fill:var(--floor-off);stroke:var(--wall);stroke-width:.9}
+.fx.col{fill:var(--wall);stroke:none}
+.fx.closet{stroke-width:2.5}
+.hl{fill:var(--accent);fill-opacity:.13;stroke:var(--accent);stroke-width:4;stroke-linejoin:round}
+.lbl{pointer-events:none}
+.lbl text{font-family:var(--display);font-weight:650;font-size:var(--fs, 14px);fill:var(--ink);
+  paint-order:stroke;stroke:var(--floor);stroke-width:calc(var(--fs, 14px) * .32);stroke-linejoin:round}
+.lbl.other text{fill:var(--muted);font-weight:500;stroke:var(--floor-off)}
+.lbl.outdoor text{fill:var(--muted);font-weight:500;stroke:var(--sheet)}
+.lbl.front text{fill:var(--muted);font-weight:600;stroke:var(--sheet);font-size:calc(var(--fs, 14px) * .82)}
+.arrow{stroke:var(--muted);stroke-width:1.6;fill:none}
+.arrowhead{fill:var(--muted)}
+.cone{fill:var(--mark);fill-opacity:.28;stroke:var(--mark);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.dot{fill:var(--mark);stroke:var(--card);stroke-width:3;vector-effect:non-scaling-stroke}
+@media (prefers-reduced-motion: no-preference){
+  .cam{transition:transform .45s cubic-bezier(.3,.7,.2,1)}
+  .btn,.roomlist button,.thumbs button{transition:background-color .12s, border-color .12s, color .12s}
+}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-house" viewBox="0 0 24 24"><path d="M3.5 11.5L12 4l8.5 7.5M6 10v9.5h12V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-grow" viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+</svg>
+
+<!-- ============ home screen ============ -->
+<main id="home" class="home">
+  <section class="intro">
+    <h1>Welcome to the new house</h1>
+    <p class="lead">Tap any room on the map to see its photos. Or start the tour, and the Next button walks you through every room, beginning at the front door.</p>
+    <p class="done" id="done" hidden><svg class="ico"><use href="#i-check"/></svg>You've seen all 13 rooms. Tap any room to look again.</p>
+    <div class="startrow">
+      <button type="button" class="btn primary" id="start"><span id="startLabel">Start the tour</span><svg class="ico"><use href="#i-right"/></svg></button>
+      <small>13 rooms · 55 photos</small>
+    </div>
+  </section>
+
+  <section class="plancard" aria-label="House plan">
+    <svg id="plan" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="House plan. The front of the house is at the bottom."></svg>
+    <div class="legend">
+      <span><i class="sw on"></i>Tap to see photos</span>
+      <span><i class="sw off"></i>Closets, garage and storeroom (no photos)</span>
+    </div>
+  </section>
+
+  <section class="list">
+    <h2>Or pick a room</h2>
+    <ol class="roomlist" id="roomlist"></ol>
+  </section>
+
+  <p class="foot">Created in collaboration with Claude AI.</p>
+</main>
+
+<!-- ============ room screen ============ -->
+<div id="room" hidden>
+  <header class="bar">
+    <button type="button" class="btn" id="toPlan"><svg class="ico"><use href="#i-house"/></svg>House plan</button>
+    <div class="t">
+      <h1 id="roomName">Room</h1>
+      <p id="roomPos">Room 1 of 13</p>
+    </div>
+  </header>
+  <main class="roomgrid">
+    <figure class="viewer" id="viewer">
+      <button type="button" class="stagebtn" id="stage" aria-label="Show this photo bigger">
+        <img id="photo" alt="" width="1280" height="960">
+        <span class="zoom" aria-hidden="true"><svg class="ico"><use href="#i-grow"/></svg>Bigger</span>
+      </button>
+      <figcaption aria-live="polite">
+        <span class="count" id="count">Photo 1 of 1</span>
+        <span class="cap" id="cap"></span>
+      </figcaption>
+    </figure>
+
+    <nav class="steps" aria-label="Photo steps">
+      <button type="button" class="btn" id="prev"><svg class="ico"><use href="#i-left"/></svg><span><span class="k" id="prevK"></span><span class="v" id="prevV">Previous photo</span></span></button>
+      <button type="button" class="btn primary" id="next"><span><span class="k" id="nextK"></span><span class="v" id="nextV">Next photo</span></span><svg class="ico"><use href="#i-right"/></svg></button>
+    </nav>
+
+    <aside class="side">
+      <section class="card">
+        <h2>Where this photo was taken</h2>
+        <svg id="mini" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+        <p class="key">
+          <svg viewBox="0 0 34 26" aria-hidden="true"><path class="cone" d="M7 13 L31 3 A26 26 0 0 1 31 23 Z"/><circle class="dot" cx="7" cy="13" r="5"/></svg>
+          <span>The dot is where the camera stood. The wedge shows which way it was facing.</span>
+        </p>
+      </section>
+      <section class="card">
+        <h2 id="thumbsTitle">All photos in this room</h2>
+        <div class="thumbs" id="thumbs"></div>
+      </section>
+    </aside>
+    <p class="foot">Created in collaboration with Claude AI.</p>
+  </main>
+</div>
+
+<div class="big" id="big" hidden role="dialog" aria-modal="true" aria-label="Bigger photo">
+  <button type="button" class="btn" id="bigClose"><svg class="ico"><use href="#i-x"/></svg>Close</button>
+  <img id="bigImg" alt="">
+  <p id="bigCap"></p>
+</div>
+
+<script>
+(() => {
+/* ============ plan data (inches). x runs toward the front of the house; y runs from the bedroom wing toward the garage ============ */
+const rect = (x0, y0, x1, y1) => [[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
+const PLAN = [
+  {id:"living-room", poly:rect(0,0,158,235), label:[79,118], lines:["Living","Room"]},
+  {id:"foyer", poly:rect(158,126,248,235), label:[203,180], lines:["Foyer"]},
+  {id:"hall-bathroom", poly:[[158,0],[200,0],[200,28],[262,28],[262,86],[238,86],[238,100],[158,100]], label:[200,62], lines:["Hall","Bath"]},
+  {id:"coat", kind:"other", poly:rect(158,100,238,126)},
+  {id:"hallway", poly:rect(120,-51,334,0), label:[227,-25], lines:["Hallway"], axis:0},
+  {id:"hcl1", kind:"other", poly:rect(176,-77,244,-51)},
+  {id:"primary-bedroom", poly:rect(-96,-216,120,0), label:[12,-108], lines:["Primary","Bedroom"]},
+  {id:"primary-bathroom", poly:rect(120,-260,248,-140), label:[184,-200], lines:["Primary","Bath"]},
+  {id:"primary-closet", poly:[[120,-140],[248,-140],[248,-77],[176,-77],[176,-51],[120,-51]], label:[172,-104], lines:["Primary","Closet"], short:["Closet"]},
+  {id:"bedroom-2", poly:rect(248,-215,404,-51), label:[326,-133], lines:["Bedroom 2"], short:["Bedroom","2"]},
+  {id:"bedroom-3", poly:[[334,-51],[404,-51],[404,126],[262,126],[262,0],[334,0]], label:[333,60], lines:["Bedroom 3"], short:["Bedroom","3"]},
+  {id:"hcl2", kind:"other", poly:rect(200,0,262,28)},
+  {id:"dining-area", poly:rect(-138,235,60,385), label:[-40,310], lines:["Dining","Area"], short:["Dining"]},
+  {id:"kitchen", poly:[[60,235],[192,235],[192,381],[216,381],[216,515],[60,515]], label:[132,440], lines:["Kitchen"]},
+  {id:"den", poly:rect(-318,235,-138,385), label:[-228,310], lines:["Den"]},
+  {id:"laundry-room", poly:rect(192,235,312,325), label:[252,280], lines:["Laundry"], shortAxis:0},
+  {id:"pantry", kind:"other", poly:rect(192,325,216,381)},
+  {id:"garage", kind:"other", poly:rect(216,325,470,605), label:[343,470], lines:["Garage"]},
+  {id:"store", kind:"other", poly:rect(60,515,216,605), label:[138,560], lines:["Storeroom"], axis:0},
+  {id:"porch1", kind:"outdoor", poly:rect(-318,0,0,235), label:[-238,118], lines:["Porch"]},
+  {id:"porch2", kind:"outdoor", poly:rect(-50,385,60,560), label:[5,478], lines:["Porch"], axis:0}
+];
+const O = (type, a, b, extra = {}) => Object.assign({type, a, b, side:1, hinge:"a", ext:false}, extra);
+const OPENINGS = [
+  O("window",[0,21],[0,57],{ext:true}), O("window",[0,63],[0,99],{ext:true}),
+  O("window",[0,105],[0,141],{ext:true}), O("window",[0,147],[0,183],{ext:true}),
+  O("door",[0,202],[0,234],{side:1, hinge:"b", ext:true}),
+  O("french",[126,0],[158,0],{side:1}),
+  O("open",[15,235],[192,235]), O("open",[158,126],[158,235]),
+  O("window",[248,147],[248,163],{ext:true}), O("door",[248,163],[248,199],{side:-1, hinge:"b", ext:true}), O("window",[248,199],[248,215],{ext:true}),
+  O("bifold",[187,126],[233,126],{side:1}),
+  O("door",[120,-44],[120,-12],{side:-1, hinge:"a"}),
+  O("door",[164,0],[196,0],{side:1, hinge:"b"}),
+  O("double",[180,-51],[240,-51],{side:1}),
+  O("door",[256,-51],[288,-51],{side:-1, hinge:"a"}),
+  O("double",[204,0],[258,0],{side:-1}),
+  O("door",[334,-44],[334,-12],{side:1, hinge:"b"}),
+  O("window",[-96,-170],[-96,-134],{ext:true}), O("window",[-96,-90],[-96,-54],{ext:true}),
+  O("door",[120,-206],[120,-174],{side:1, hinge:"a"}),
+  O("window",[150,-260],[180,-260],{ext:true}),
+  O("double",[130,-140],[178,-140],{side:-1}),
+  O("window",[404,-120],[404,-80],{ext:true, side:-1}),
+  O("arched",[404,10],[404,70],{ext:true, side:-1}),
+  O("window",[320,126],[356,126],{ext:true, side:-1}),
+  O("bifold",[262,88],[262,124],{side:1}),
+  O("french",[-138,292],[-138,328],{side:-1}),
+  O("door",[20,385],[52,385],{side:-1, hinge:"a", ext:true}),
+  O("open",[60,235],[60,385]),
+  O("window",[60,390],[60,426],{ext:true}),
+  O("door",[192,247],[192,279],{side:1, hinge:"a"}),
+  O("double",[192,337],[192,377],{side:-1}),
+  O("window",[-318,262],[-318,294],{ext:true}), O("window",[-318,294],[-318,326],{ext:true}), O("window",[-318,326],[-318,358],{ext:true}),
+  O("door",[-176,235],[-144,235],{side:1, hinge:"a"}),
+  O("window",[312,262],[312,298],{ext:true, side:-1}),
+  O("door",[228,325],[264,325],{side:-1, hinge:"a"}),
+  O("garage",[470,368],[470,560],{ext:true, side:-1}),
+  O("door",[418,605],[454,605],{side:-1, hinge:"a", ext:true}),
+  O("window",[298,605],[337,605],{ext:true, side:-1}),
+  O("door",[216,542],[216,578],{side:-1, hinge:"b"})
+];
+const FIXTURES = [
+  {cls:"col", poly:rect(56,230,66,240)}, {cls:"col", poly:rect(141,230,151,240)},
+  {cls:"", poly:[[60,323],[142,323],[168,344],[168,374],[142,374],[124,350],[60,350]]},
+  {cls:"", poly:rect(60,350,84,515)}, {cls:"", poly:rect(84,491,216,515)}, {cls:"", poly:rect(192,419,216,491)},
+  {cls:"", poly:rect(186,383,216,419)},
+  {cls:"", poly:rect(-138,245,-124,292)}, {cls:"", poly:rect(-138,328,-124,375)},
+  {cls:"closet", poly:rect(344,-66,404,-36)}, {cls:"closet", poly:rect(238,86,262,126)}, {cls:"", poly:rect(234,28,262,86)},
+  {cls:"", poly:rect(158,6,180,44)}, {cls:"", poly:rect(160,50,178,72)},
+  {cls:"", poly:rect(216,385,246,409)},
+  {cls:"col", poly:rect(-318,0,-308,10)}, {cls:"col", poly:rect(-318,145,-308,155)}, {cls:"col", poly:rect(-165,115,-155,125)},
+  {cls:"col", poly:rect(-50,435,-40,445)}
+];
+const BOUNDS = {x0:-318, y0:-260, x1:470, y1:605};
+
+/* ============ the tour: rooms in walking order; each photo is [file, x, y, facing in degrees, caption]
+   facing: 0 = toward the front of the house, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing ============ */
+const TOUR = [
+  {id:"foyer", name:"Foyer", photos:[
+    ["foyer-1", 40,190, 0, "The front door, seen from the living room"]]},
+  {id:"living-room", name:"Living Room", photos:[
+    ["living-room-2", 75,25, 90, "Looking across the living room toward the kitchen"],
+    ["living-room-3", 130,20, 100, "The kitchen and dining area, past the columns"],
+    ["living-room-4", 95,215, -85, "The red doors lead to the bedroom hallway"],
+    ["living-room-1", 100,300, -88, "Looking back into the living room from the kitchen"]]},
+  {id:"dining-area", name:"Dining Area", photos:[
+    ["dining-area-1", -110,350, -10, "From the dining area, looking toward the front of the house"]]},
+  {id:"den", name:"Den", photos:[
+    ["den-1", -125,310, 180, "Looking into the den from its doorway"],
+    ["den-2", -190,330, 200, "The den's big window"],
+    ["den-3", -190,290, 165, "The window wall from another angle"],
+    ["den-4", -290,310, 0, "Looking back toward the dining area. The door on the left goes out to the patio."]]},
+  {id:"kitchen", name:"Kitchen", photos:[
+    ["kitchen-2", -110,285, 5, "From the dining area, looking toward the kitchen"],
+    ["kitchen-3", 175,305, 95, "Pantry and fridge on the left, stove ahead, sink on the right"],
+    ["kitchen-4", 130,290, 88, "The stove wall and the curved counter"],
+    ["kitchen-5", 140,425, -160, "From the sink, looking toward the den doors"],
+    ["kitchen-6", 95,430, -80, "From the sink, looking out toward the living room"],
+    ["kitchen-1", 150,290, 180, "Past the counter toward the dining area and den"],
+    ["kitchen-7", 150,475, -72, "The fridge, the pantry doors and the metal accent wall"]]},
+  {id:"laundry-room", name:"Laundry Room", photos:[
+    ["laundry-room-1", 205,255, 5, "Stepping in through the door in the metal accent wall"],
+    ["laundry-room-2", 205,295, 0, "The window at the far end and the door to the garage"],
+    ["laundry-room-3", 250,300, -90, "Cabinets, a utility sink and the washer hookups"],
+    ["laundry-room-4", 262,255, 90, "Coat hooks beside the door to the garage"]]},
+  {id:"hallway", name:"Hallway", photos:[
+    ["hallway-1", 142,25, -90, "Through the red doors from the living room"],
+    ["hallway-2", 128,-25, 0, "From the primary bedroom door, looking toward Bedroom 3"],
+    ["hallway-3", 275,-40, 160, "The hall bathroom door, with the living room doors beyond"]]},
+  {id:"hall-bathroom", name:"Hall Bathroom", photos:[
+    ["hall-bathroom-1", 180,8, 90, "From the door, the vanity is on the right and the toilet is past it"],
+    ["hall-bathroom-2", 225,62, -140, "The vanity and medicine cabinet, with the door on the right"],
+    ["hall-bathroom-5", 230,50, 175, "The toilet and the vanity"],
+    ["hall-bathroom-3", 175,62, 0, "The tub and shower"],
+    ["hall-bathroom-4", 205,58, -5, "The shower"],
+    ["hall-bathroom-6", 200,92, -80, "The tub, with the door on the left"],
+    ["hall-bathroom-7", 190,40, -95, "Looking out the door toward the hall closet"]]},
+  {id:"bedroom-2", name:"Bedroom 2", photos:[
+    ["bedroom-2-1", 280,-62, -80, "Looking in from the door"],
+    ["bedroom-2-2", 265,-110, 5, "The big window"],
+    ["bedroom-2-3", 370,-170, 95, "The closet and the door to the hall"],
+    ["bedroom-2-4", 360,-140, 100, "The closet, open"]]},
+  {id:"bedroom-3", name:"Bedroom 3", photos:[
+    ["bedroom-3-4", 330,-28, 40, "Looking in from the hall"],
+    ["bedroom-3-2", 285,100, -45, "The arched window"],
+    ["bedroom-3-1", 385,80, -150, "The closet doors and the door to the hall"],
+    ["bedroom-3-3", 285,106, 180, "Inside the closet"]]},
+  {id:"primary-bedroom", name:"Primary Bedroom", photos:[
+    ["primary-bedroom-1", 110,-30, 195, "From the hall door, looking at the back windows"],
+    ["primary-bedroom-6", 60,-180, 140, "The wardrobe and the two back windows"],
+    ["primary-bedroom-5", 95,-190, 100, "The wardrobe, with the hall door on the left"],
+    ["primary-bedroom-3", 90,-30, -125, "A back window on the left, the TV shelf on the right"],
+    ["primary-bedroom-2", 40,-15, -80, "The TV shelf, with the bathroom door at the far end"],
+    ["primary-bedroom-4", -60,-110, 0, "The bathroom door, the TV shelf and the hall door"]]},
+  {id:"primary-bathroom", name:"Primary Bathroom", photos:[
+    ["primary-bathroom-1", 124,-188, -55, "From the bedroom door, the double vanity and the corner tub"],
+    ["primary-bathroom-2", 140,-200, -5, "The corner tub, the toilet and the shower"],
+    ["primary-bathroom-3", 215,-195, -165, "The vanity, the glass-block window and the tub"],
+    ["primary-bathroom-4", 135,-240, 35, "The shower and the doors to the closet"]]},
+  {id:"primary-closet", name:"Primary Closet", photos:[
+    ["primary-closet-1", 154,-150, 95, "Looking into the closet from the bathroom"],
+    ["primary-closet-2", 160,-148, 80, "The shoe rack just inside the doors"],
+    ["primary-closet-5", 135,-105, 0, "Shelves along both walls"],
+    ["primary-closet-4", 180,-95, -35, "The skylight"],
+    ["primary-closet-3", 210,-105, 160, "A corner of the closet"],
+    ["primary-closet-6", 215,-95, -105, "Shelves beside the door back to the bathroom"]]}
+];
+
+/* ============ helpers ============ */
+const $ = id => document.getElementById(id);
+const R = 90;                                   /* street view: front of the house at the bottom */
+const toScreen = ([x, y]) => [-y, x];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pts = poly => "M" + poly.map(p => p[0] + "," + p[1]).join("L") + "Z";
+const tourIndex = id => TOUR.findIndex(t => t.id === id);
+const photoUrl = f => `photos/${f}.jpg`;
+const thumbUrl = f => `thumbs/${f}.jpg`;
+const plural = n => n === 1 ? "1 photo" : `${n} photos`;
+const reduceMotion = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============ drawing the plan ============ */
+function arcPath(h, f, l, r){
+  const cross = (f[0]-h[0])*(l[1]-h[1]) - (f[1]-h[1])*(l[0]-h[0]);
+  return `M${f[0]},${f[1]} A${r},${r} 0 0 ${cross > 0 ? 1 : 0} ${l[0]},${l[1]}`;
+}
+function drawOpening(o){
+  const [ax, ay] = o.a, [bx, by] = o.b;
+  const horiz = ay === by, len = Math.hypot(bx - ax, by - ay);
+  const u = [(bx - ax)/len, (by - ay)/len], n = horiz ? [0, o.side] : [o.side, 0], T = 7;
+  const gx = Math.min(ax, bx) - (horiz ? 0 : T/2), gy = Math.min(ay, by) - (horiz ? T/2 : 0);
+  let s = `<rect class="gap ${o.ext ? "ext" : "int"}" x="${gx}" y="${gy}" width="${horiz ? len : T}" height="${horiz ? T : len}"/>`;
+  const add = (p, k) => [p[0] + n[0]*k, p[1] + n[1]*k];
+  if(o.type === "window" || o.type === "arched"){
+    for(const k of [-1.6, 1.6]) s += `<line class="glass" x1="${ax+n[0]*k}" y1="${ay+n[1]*k}" x2="${bx+n[0]*k}" y2="${by+n[1]*k}"/>`;
+    if(o.type === "arched"){
+      const m = [(ax+bx)/2 - n[0]*len*0.42, (ay+by)/2 - n[1]*len*0.42];
+      s += `<path class="glass" d="M${ax - n[0]*3.5},${ay - n[1]*3.5} Q${m[0]},${m[1]} ${bx - n[0]*3.5},${by - n[1]*3.5}"/>`;
+    }
+  } else if(o.type === "open"){
+    s += `<line class="openline" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}"/>`;
+  } else if(o.type === "garage"){
+    s += `<line class="gdoor" x1="${ax + n[0]*4}" y1="${ay + n[1]*4}" x2="${bx + n[0]*4}" y2="${by + n[1]*4}"/>`;
+  } else if(o.type === "bifold"){
+    const q = len/4, p1 = add([ax + u[0]*q, ay + u[1]*q], 9), p2 = [ax + u[0]*2*q, ay + u[1]*2*q], p3 = add([ax + u[0]*3*q, ay + u[1]*3*q], 9);
+    s += `<path class="leaf" d="M${ax},${ay}L${p1[0]},${p1[1]}L${p2[0]},${p2[1]}L${p3[0]},${p3[1]}L${bx},${by}"/>`;
+  } else if(o.type === "double" || o.type === "french"){
+    const half = len/2, mid = [(ax+bx)/2, (ay+by)/2], cls = o.type === "french" ? "leaf red" : "leaf";
+    for(const h of [o.a, o.b]){
+      const l = add(h, half);
+      s += `<line class="${cls}" x1="${h[0]}" y1="${h[1]}" x2="${l[0]}" y2="${l[1]}"/><path class="arc" d="${arcPath(h, mid, l, half)}"/>`;
+    }
+  } else {
+    const h = o.hinge === "b" ? o.b : o.a, f = o.hinge === "b" ? o.a : o.b, l = add(h, len);
+    s += `<line class="leaf" x1="${h[0]}" y1="${h[1]}" x2="${l[0]}" y2="${l[1]}"/><path class="arc" d="${arcPath(h, f, l, len)}"/>`;
+  }
+  return s;
+}
+function labelAngle(axis){
+  let a = (R + axis) % 360;
+  if(a >= 90 && a < 270) a -= 180;
+  if(a >= 270) a -= 360;
+  return a - R;
+}
+function labelsMarkup(useShort){
+  let s = "";
+  for(const r of PLAN){
+    if(!r.label) continue;
+    const lines = useShort && r.short ? r.short : r.lines;
+    const axis = useShort && r.shortAxis !== undefined ? r.shortAxis : r.axis;
+    const theta = axis !== undefined ? labelAngle(axis) : -R;
+    const n = lines.length;
+    const t = lines.map((txt, k) => `<text y="${((k - (n - 1)/2) * 1.08).toFixed(2)}em" dy=".35em" text-anchor="middle">${esc(txt)}</text>`).join("");
+    s += `<g class="lbl ${r.kind || "room"}" transform="translate(${r.label[0]},${r.label[1]}) rotate(${theta})">${t}</g>`;
+  }
+  s += `<g class="lbl front" transform="translate(318,181) rotate(${-R})"><text dy=".35em" text-anchor="middle">Front door</text></g>`;
+  return s;
+}
+function baseMarkup(interactive){
+  let s = `<defs><marker id="ah${interactive ? "1" : "2"}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrowhead" d="M0,0L10,5L0,10Z"/></marker></defs>`;
+  s += `<g transform="rotate(${R})">`;
+  for(const r of PLAN){
+    const ti = tourIndex(r.id);
+    const cls = ti >= 0 ? "has" : (r.kind || "");
+    if(interactive && ti >= 0){
+      const t = TOUR[ti];
+      s += `<path class="room ${cls}" d="${pts(r.poly)}" data-room="${ti}" tabindex="0" role="button" aria-label="${esc(t.name)}, ${plural(t.photos.length)}"/>`;
+    } else {
+      s += `<path class="room ${cls}" d="${pts(r.poly)}"/>`;
+    }
+  }
+  s += `<g pointer-events="none">${FIXTURES.map(f => `<path class="fx ${f.cls}" d="${pts(f.poly)}"/>`).join("")}`;
+  s += `<path class="walls dashed" d="${PLAN.filter(r => r.kind === "outdoor").map(r => pts(r.poly)).join("")}"/>`;
+  s += `<path class="walls" d="${PLAN.filter(r => r.kind !== "outdoor").map(r => pts(r.poly)).join("")}"/>`;
+  s += OPENINGS.map(drawOpening).join("");
+  s += `<line class="arrow" x1="298" y1="181" x2="258" y2="181" marker-end="url(#ah${interactive ? "1" : "2"})"/></g>`;
+  s += `<g class="hlg" pointer-events="none"></g>`;
+  s += `<g class="labels"></g>`;
+  if(!interactive) s += `<g class="cam" id="cam"><path class="cone" d="M0,0 L0.848,-0.53 A1,1 0 0 1 0.848,0.53 Z"/><circle class="dot" r="0.13"/></g>`;
+  s += `</g>`;
+  return s;
+}
+function screenBox(points){
+  const c = points.map(toScreen), xs = c.map(p => p[0]), ys = c.map(p => p[1]);
+  return {x:Math.min(...xs), y:Math.min(...ys), w:Math.max(...xs) - Math.min(...xs), h:Math.max(...ys) - Math.min(...ys)};
+}
+/* label size stays readable on screen whatever the zoom */
+function setLabelScale(svg, vbW){
+  const W = svg.clientWidth || svg.getBoundingClientRect().width || 1;
+  const scale = W / vbW;
+  const px = Math.max(10, Math.min(15, 6.5 + 10 * scale));
+  svg.style.setProperty("--fs", (px / scale).toFixed(2) + "px");
+  const useShort = scale < 0.55;
+  if(svg._short !== useShort){
+    svg._short = useShort;
+    svg.querySelector(".labels").innerHTML = labelsMarkup(useShort);
+  }
+}
+
+/* ============ home screen ============ */
+const plan = $("plan");
+plan.innerHTML = baseMarkup(true);
+const homeBox = (() => {
+  const b = screenBox([[BOUNDS.x0,BOUNDS.y0],[BOUNDS.x1,BOUNDS.y0],[BOUNDS.x1,BOUNDS.y1],[BOUNDS.x0,BOUNDS.y1]]);
+  const p = 12;
+  return {x:b.x - p, y:b.y - p, w:b.w + 2*p, h:b.h + 2*p};
+})();
+plan.setAttribute("viewBox", `${homeBox.x} ${homeBox.y} ${homeBox.w} ${homeBox.h}`);
+plan.style.aspectRatio = `${homeBox.w} / ${homeBox.h}`;
+plan.addEventListener("click", e => {
+  const t = e.target.closest("[data-room]");
+  if(t) navigate(+t.dataset.room, 0);
+});
+plan.addEventListener("keydown", e => {
+  const t = e.target.closest && e.target.closest("[data-room]");
+  if(t && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); navigate(+t.dataset.room, 0); }
+});
+$("roomlist").innerHTML = TOUR.map((t, i) =>
+  `<li><button type="button" data-room="${i}"><span class="n">${i + 1}</span><img src="${thumbUrl(t.photos[0][0])}" alt="" loading="lazy" decoding="async" width="84" height="63"><span><b>${esc(t.name)}</b><span class="c">${plural(t.photos.length)}</span></span></button></li>`
+).join("");
+$("roomlist").addEventListener("click", e => {
+  const b = e.target.closest("[data-room]");
+  if(b) navigate(+b.dataset.room, 0);
+});
+$("start").addEventListener("click", () => navigate(0, 0));
+
+/* ============ room screen ============ */
+const home = $("home"), roomEl = $("room"), mini = $("mini");
+mini.innerHTML = baseMarkup(false);
+const cam = mini.querySelector("#cam"), hlg = mini.querySelector(".hlg");
+let cur = {r:-1, i:0};
+const lastIdx = {};
+let vb = {...homeBox}, vbTarget = null, anim = 0, camAngle = null, homeScroll = 0, finished = false;
+
+function roomView(r){
+  const t = TOUR[r], room = PLAN.find(p => p.id === t.id);
+  const b = screenBox([...room.poly, ...t.photos.map(p => [p[1], p[2]])]);
+  const pad = Math.max(70, 0.45 * Math.max(b.w, b.h));
+  let w = b.w + 2*pad, h = b.h + 2*pad;
+  const cx = b.x + b.w/2, cy = b.y + b.h/2, aspect = 4/3;
+  if(w / h < aspect) w = h * aspect; else h = w / aspect;
+  return {x:cx - w/2, y:cy - h/2, w, h};
+}
+function applyVB(v){
+  mini.setAttribute("viewBox", `${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`);
+  setLabelScale(mini, v.w);
+}
+function flyTo(target){
+  cancelAnimationFrame(anim);
+  if(reduceMotion() || roomEl.hidden){ vb = target; applyVB(vb); return; }
+  const from = {...vb}, t0 = performance.now(), D = 480;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+    vb = {x:from.x + (target.x - from.x)*e, y:from.y + (target.y - from.y)*e, w:from.w + (target.w - from.w)*e, h:from.h + (target.h - from.h)*e};
+    applyVB(vb);
+    if(k < 1) anim = requestAnimationFrame(step);
+  };
+  anim = requestAnimationFrame(step);
+}
+function placeCam(p, view, instant){
+  let a = p[3];
+  if(camAngle !== null){ while(a - camAngle > 180) a -= 360; while(a - camAngle < -180) a += 360; }
+  camAngle = a;
+  const L = view.h * 0.2;
+  if(instant) cam.style.transition = "none";
+  cam.style.transform = `translate(${p[1]}px, ${p[2]}px) rotate(${a}deg) scale(${L.toFixed(2)})`;
+  if(instant){ cam.getBoundingClientRect(); cam.style.transition = ""; }
+}
+function setBtn(kId, vId, k, v){ $(kId).textContent = k; $(vId).textContent = v; }
+
+function showRoom(r, i){
+  const t = TOUR[r], n = t.photos.length;
+  i = Math.max(0, Math.min(n - 1, i));
+  const roomChanged = r !== cur.r, wasHidden = roomEl.hidden;
+  if(wasHidden){ homeScroll = window.scrollY; home.hidden = true; roomEl.hidden = false; }
+  cur = {r, i}; lastIdx[r] = i;
+  const p = t.photos[i];
+  const view = vbTarget && !roomChanged ? vbTarget : roomView(r);
+  if(roomChanged){
+    $("roomName").textContent = t.name;
+    $("roomPos").textContent = `Room ${r + 1} of ${TOUR.length}`;
+    $("thumbsTitle").textContent = n === 1 ? "The only photo in this room" : `All ${n} photos in this room`;
+    $("thumbs").innerHTML = t.photos.map((q, k) =>
+      `<button type="button" data-i="${k}" aria-label="Photo ${k + 1}: ${esc(q[4])}"><img src="${thumbUrl(q[0])}" alt="" loading="lazy" decoding="async" width="360" height="270"></button>`).join("");
+    const room = PLAN.find(q => q.id === t.id);
+    hlg.innerHTML = `<path class="hl" d="${pts(room.poly)}"/>`;
+    vbTarget = view;
+    if(wasHidden){ cancelAnimationFrame(anim); vb = view; applyVB(vb); } else flyTo(view);
+    document.title = `${t.name} · New House Photo Tour`;
+  }
+  /* photo: swap only once the new one is ready, so the old one doesn't blink out */
+  const img = $("photo"), url = photoUrl(p[0]);
+  const alt = `${t.name}, photo ${i + 1} of ${n}. ${p[4]}`;
+  const pre = new Image(); pre.src = url;
+  const swap = () => { if(cur.r === r && cur.i === i){ img.src = url; img.alt = alt; } };
+  (pre.decode ? pre.decode() : Promise.reject()).then(swap, swap);
+  $("count").textContent = `Photo ${i + 1} of ${n}`;
+  $("cap").textContent = p[4];
+  placeCam(p, view, wasHidden);
+  $("thumbs").querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+
+  if(i > 0) setBtn("prevK", "prevV", "", "Previous photo");
+  else if(r > 0) setBtn("prevK", "prevV", "Back to", TOUR[r - 1].name);
+  else setBtn("prevK", "prevV", "Back to", "House plan");
+  if(i < n - 1) setBtn("nextK", "nextV", "", "Next photo");
+  else if(r < TOUR.length - 1) setBtn("nextK", "nextV", "Next room", TOUR[r + 1].name);
+  else setBtn("nextK", "nextV", "All done", "Finish the tour");
+
+  /* warm up the next photo */
+  const nx = i < n - 1 ? t.photos[i + 1] : (TOUR[r + 1] && TOUR[r + 1].photos[0]);
+  if(nx){ const w = new Image(); w.src = photoUrl(nx[0]); }
+  if(wasHidden || roomChanged) window.scrollTo(0, 0);
+}
+function navigate(r, i){
+  showRoom(r, i);
+  const want = "#" + TOUR[r].id;
+  if(location.hash !== want){ try{ location.hash = want; }catch(e){} }
+}
+function showHome(){
+  if(!roomEl.hidden){ roomEl.hidden = true; home.hidden = false; window.scrollTo(0, homeScroll); }
+  home.hidden = false;
+  cur = {r:-1, i:0}; camAngle = null; vbTarget = null;
+  $("done").hidden = !finished;
+  $("startLabel").textContent = finished ? "Take the tour again" : "Start the tour";
+  document.title = "New House Photo Tour";
+  setLabelScale(plan, homeBox.w);
+}
+function goHome(){
+  showHome();
+  if(location.hash && location.hash !== "#"){ try{ location.hash = ""; }catch(e){} }
+}
+function step(d){
+  const {r, i} = cur, n = TOUR[r].photos.length, j = i + d;
+  if(j >= n){ if(r < TOUR.length - 1) navigate(r + 1, 0); else { finished = true; goHome(); window.scrollTo(0, 0); } return; }
+  if(j < 0){ if(r > 0) navigate(r - 1, TOUR[r - 1].photos.length - 1); else goHome(); return; }
+  showRoom(r, j);
+}
+$("prev").addEventListener("click", () => step(-1));
+$("next").addEventListener("click", () => step(1));
+$("toPlan").addEventListener("click", goHome);
+$("thumbs").addEventListener("click", e => {
+  const b = e.target.closest("[data-i]");
+  if(!b) return;
+  showRoom(cur.r, +b.dataset.i);
+  const v = $("viewer").getBoundingClientRect();
+  if(v.top < 0) $("viewer").scrollIntoView({block:"start", behavior: reduceMotion() ? "auto" : "smooth"});
+});
+
+/* bigger photo */
+const big = $("big");
+function openBig(){
+  const t = TOUR[cur.r], p = t.photos[cur.i];
+  $("bigImg").src = photoUrl(p[0]); $("bigImg").alt = $("photo").alt; $("bigCap").textContent = p[4];
+  big.hidden = false; $("bigClose").focus();
+}
+function closeBig(){ big.hidden = true; $("stage").focus(); }
+$("stage").addEventListener("click", openBig);
+big.addEventListener("click", closeBig);
+
+window.addEventListener("keydown", e => {
+  if(!big.hidden){ if(e.key === "Escape") closeBig(); return; }
+  if(roomEl.hidden) return;
+  if(e.target.closest && e.target.closest("input,textarea")) return;
+  if(e.key === "ArrowRight"){ e.preventDefault(); step(1); }
+  else if(e.key === "ArrowLeft"){ e.preventDefault(); step(-1); }
+  else if(e.key === "Escape"){ goHome(); }
+});
+
+/* the device's back button moves between rooms and the plan */
+function onHash(){
+  const r = tourIndex(decodeURIComponent(location.hash.slice(1)));
+  if(r < 0){ showHome(); return; }
+  if(!roomEl.hidden && cur.r === r) return;
+  showRoom(r, lastIdx[r] || 0);
+}
+window.addEventListener("hashchange", onHash);
+const ro = new ResizeObserver(() => {
+  if(!home.hidden) setLabelScale(plan, homeBox.w);
+  if(!roomEl.hidden) setLabelScale(mini, vb.w);
+});
+ro.observe(plan); ro.observe(mini);
+onHash();
+})();
+</script>
+
+</body>
+</html>
