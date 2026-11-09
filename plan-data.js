@@ -110,8 +110,7 @@ window.HOUSE = {
     {"id": "den", "name": "Den", "photos": [
       {"f": "den-1", "x": -125, "y": 310, "dir": 180, "cap": "Looking into the den from its doorway"},
       {"f": "den-2", "x": -190, "y": 330, "dir": 200, "cap": "The den's big window"},
-      {"f": "den-3", "x": -190, "y": 290, "dir": 165, "cap": "The window wall from another angle"},
-      {"f": "den-4", "x": -290, "y": 310, "dir": 0, "cap": "Looking back toward the dining area. The door on the left goes out to the patio."}
+      {"f": "den-3", "x": -190, "y": 290, "dir": 165, "cap": "The window wall from another angle"}
     ]},
     {"id": "kitchen", "name": "Kitchen", "photos": [
       {"f": "kitchen-2", "x": -110, "y": 285, "dir": 5, "cap": "From the dining area, looking toward the kitchen"},

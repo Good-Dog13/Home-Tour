@@ -200,10 +200,10 @@ p{margin:0}
   <section class="intro">
     <h1>Welcome to the new house</h1>
     <p class="lead">Tap any room on the map to see its photos. Or start the tour, and the Next button walks you through every room, beginning at the front door.</p>
-    <p class="done" id="done" hidden><svg class="ico"><use href="#i-check"/></svg>You've seen all 13 rooms. Tap any room to look again.</p>
+    <p class="done" id="done" hidden><svg class="ico"><use href="#i-check"/></svg>You've seen all <span id="doneCount">13</span> rooms. Tap any room to look again.</p>
     <div class="startrow">
       <button type="button" class="btn primary" id="start"><span id="startLabel">Start the tour</span><svg class="ico"><use href="#i-right"/></svg></button>
-      <small>13 rooms · 55 photos</small>
+      <small id="counts">13 rooms · 55 photos</small>
     </div>
   </section>
 
@@ -327,6 +327,9 @@ $("roomlist").addEventListener("click", e => {
   if(b) navigate(+b.dataset.room, 0);
 });
 $("start").addEventListener("click", () => navigate(0, 0));
+/* counts come from the plan data, so they stay right when photos are added or removed */
+$("counts").textContent = `${TOUR.length} rooms · ${TOUR.reduce((a, t) => a + t.photos.length, 0)} photos`;
+$("doneCount").textContent = TOUR.length;
 
 /* ============ room screen ============ */
 const home = $("home"), roomEl = $("room"), mini = $("mini");
