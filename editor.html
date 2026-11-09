@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Floor Plan Editor · New House Photo Tour</title>
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url("fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2")}
+/* Layout: a toolbar across the top, the plan filling the left, and an inspector on the right that changes with what's selected. */
+:root{
+  --bg:#F1F3EE; --card:#FFFFFF; --sheet:#F7F8F4; --ink:#1C2826; --muted:#55625E; --line:#D3D9D1;
+  --floor:#FFFFFF; --floor-off:#E6EAE2; --wall:#26332F; --on-accent:#FFFFFF;
+  --accent:#1D6B58; --accent-hover:#175747; --accent-soft:#D9EAE2;
+  --mark:#D4561C; --red:#A5383A; --guide:#C0329A; --warn-bg:#FCEFD9; --warn-ink:#6B4710;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111715; --card:#19211E; --sheet:#161D1A; --ink:#E5ECE7; --muted:#9DABA4; --line:#2D3833;
+    --floor:#26312C; --floor-off:#1C2420; --wall:#C9D5CF; --on-accent:#0D1A15;
+    --accent:#6CC9AB; --accent-hover:#8AD7BE; --accent-soft:#1E3A30;
+    --mark:#FF8A50; --red:#E5807F; --guide:#F07ACD; --warn-bg:#3A2E17; --warn-ink:#F3D9A6;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111715; --card:#19211E; --sheet:#161D1A; --ink:#E5ECE7; --muted:#9DABA4; --line:#2D3833;
+  --floor:#26312C; --floor-off:#1C2420; --wall:#C9D5CF; --on-accent:#0D1A15;
+  --accent:#6CC9AB; --accent-hover:#8AD7BE; --accent-soft:#1E3A30;
+  --mark:#FF8A50; --red:#E5807F; --guide:#F07ACD; --warn-bg:#3A2E17; --warn-ink:#F3D9A6;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+p{margin:0}
+
+/* toolbar */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));border-bottom:1px solid var(--line);background:var(--card)}
+.top h1{font-size:1.25rem;font-weight:760}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:.82rem;font-weight:700;background:var(--accent-soft);color:var(--accent)}
+.pill.dirty{background:var(--warn-bg);color:var(--warn-ink)}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
+.sep{width:1px;height:26px;background:var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:6px 12px;border-radius:9px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default;border-color:var(--line)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.btn.danger{color:var(--red)}
+.tog{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer;white-space:nowrap}
+.tog input{width:17px;height:17px;accent-color:var(--accent)}
+select.btn{padding-right:8px}
+
+/* main area */
+.layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px}
+.stage{position:relative;min-width:0;min-height:0;background:var(--sheet)}
+#ed{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#ed.panning{cursor:grabbing}
+#ed.adding{cursor:crosshair}
+.zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
+.zoom .btn{min-width:40px}
+.layers{position:absolute;left:12px;top:12px;display:flex;flex-wrap:wrap;gap:6px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;max-width:calc(100% - 90px)}
+.layers b{font-size:.85rem;color:var(--muted)}
+.statusline{position:absolute;left:12px;bottom:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;pointer-events:none}
+.statusline span{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:.88rem;font-variant-numeric:tabular-nums}
+.statusline span:empty{display:none}
+#live{font-weight:700;border-color:var(--accent)!important}
+.panel{border-left:1px solid var(--line);background:var(--card);overflow:auto;padding:16px max(16px, env(safe-area-inset-right, 0px)) 24px 16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel h2{font-size:1.2rem;font-weight:740}
+.panel h3{font-size:.95rem;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.panel .sub{color:var(--muted);font-size:.9rem}
+.group{display:flex;flex-direction:column;gap:8px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field span{font-size:.85rem;color:var(--muted)}
+.field input,.field select,.field textarea{border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--bg);width:100%}
+.field textarea{min-height:64px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.row .field{flex:1;min-width:70px}
+.size{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums}
+.size dt{color:var(--muted)} .size dd{margin:0;font-weight:700}
+.help{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.9rem}
+kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--bg);white-space:nowrap}
+.spots{display:flex;flex-direction:column;gap:10px}
+.spots h4{margin:0;font:700 .95rem var(--display)}
+.spotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;margin-top:6px}
+.spotgrid button{padding:0;border:2.5px solid transparent;border-radius:7px;overflow:hidden;aspect-ratio:4/3;background:var(--floor-off);cursor:pointer}
+.spotgrid button[aria-current="true"]{border-color:var(--mark)}
+.spotgrid img{width:100%;height:100%;object-fit:cover;display:block}
+.photo{width:100%;border-radius:10px;display:block;background:var(--floor-off);aspect-ratio:4/3;object-fit:cover}
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:10px 12px;font-size:.92rem}
+.banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--warn-bg);color:var(--warn-ink);padding:8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));font-weight:700}
+.banner .btn{min-height:30px;padding:3px 10px}
+.foot{font-size:.8rem;color:var(--muted);margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+
+/* save dialog */
+.dlg{position:fixed;inset:0;z-index:50;background:rgba(10,14,12,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg .box{background:var(--card);color:var(--ink);border-radius:16px;max-width:620px;width:100%;max-height:calc(100% - 32px);overflow:auto;padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.dlg h2{font-size:1.35rem}
+.dlg ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:12px}
+.dlg textarea{width:100%;min-height:140px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg)}
+.dlg .ok{color:var(--accent);font-weight:700}
+
+/* plan drawing (shared look with the tour) */
+.room{fill:var(--floor-off);stroke:none}
+.room.has{fill:var(--floor)}
+.room.outdoor{fill:var(--sheet);fill-opacity:.01}
+.room:hover{fill:var(--accent-soft)}
+.walls{fill:none;stroke:var(--wall);stroke-width:5;stroke-linejoin:miter;stroke-linecap:square}
+.walls.dashed{stroke-width:2;stroke-dasharray:8 6;stroke:var(--muted)}
+.gap{stroke:none}
+.gap.int{fill:var(--floor)}
+.gap.ext{fill:var(--sheet)}
+.leaf{stroke:var(--wall);stroke-width:1.4;fill:none}
+.leaf.red{stroke:var(--red);stroke-width:2.4}
+.arc{stroke:var(--muted);stroke-width:.8;fill:none;stroke-dasharray:3 3}
+.glass{stroke:var(--wall);stroke-width:1;fill:none}
+.openline{stroke:var(--muted);stroke-width:1;stroke-dasharray:5 4;fill:none}
+.gdoor{stroke:var(--wall);stroke-width:1.4;stroke-dasharray:8 4;fill:none}
+.fx{fill:var(--floor-off);stroke:var(--wall);stroke-width:.9;cursor:move}
+.fx:hover{stroke:var(--accent);stroke-width:2}
+.fx.col{fill:var(--wall);stroke:none}
+.fx.closet{stroke-width:2.5}
+.op{cursor:move}
+.op .hit{stroke:transparent;stroke-width:16px;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.op:hover .hit{stroke:var(--accent);stroke-opacity:.28}
+.lbl{cursor:move}
+.lbl text{font-family:var(--display);font-weight:650;font-size:var(--fs, 14px);fill:var(--ink);paint-order:stroke;stroke:var(--floor);stroke-width:calc(var(--fs, 14px) * .32);stroke-linejoin:round}
+.lbl.other text{fill:var(--muted);font-weight:500;stroke:var(--floor-off)}
+.lbl.outdoor text{fill:var(--muted);font-weight:500;stroke:var(--sheet)}
+.lbl.front{pointer-events:none}
+.lbl.front text{fill:var(--muted);font-weight:600;stroke:var(--sheet);font-size:calc(var(--fs, 14px) * .82)}
+.arrow{stroke:var(--muted);stroke-width:1.6;fill:none}
+.arrowhead{fill:var(--muted)}
+#ed.no-op .op,#ed.no-fx .fx,#ed.no-lbl .lbl{pointer-events:none}
+#ed.no-op .op:hover .hit{stroke:transparent}
+
+/* editor overlay */
+.selroom{fill:var(--accent);fill-opacity:.1;stroke:var(--accent);stroke-width:3px;vector-effect:non-scaling-stroke;pointer-events:none}
+.seledge{stroke:var(--accent);stroke-width:7px;vector-effect:non-scaling-stroke;stroke-linecap:round;pointer-events:none}
+.h-vtx{fill:var(--card);stroke:var(--accent);stroke-width:2.5px;vector-effect:non-scaling-stroke;cursor:move}
+.h-edge{fill:var(--accent);stroke:var(--card);stroke-width:2px;vector-effect:non-scaling-stroke}
+.h-edge.v{cursor:ns-resize} .h-edge.h{cursor:ew-resize}
+.h-edge.active{fill:var(--mark)}
+.selop{stroke:var(--accent);stroke-width:9px;stroke-opacity:.45;vector-effect:non-scaling-stroke;stroke-linecap:round;pointer-events:none}
+.selfx{fill:none;stroke:var(--accent);stroke-width:3px;vector-effect:non-scaling-stroke;pointer-events:none}
+.dim{font:700 var(--dfs, 11px) var(--body);fill:var(--accent);paint-order:stroke;stroke:var(--card);stroke-width:calc(var(--dfs, 11px) * .35);stroke-linejoin:round;pointer-events:none}
+.guide{stroke:var(--guide);stroke-width:1.5px;stroke-dasharray:6 4;vector-effect:non-scaling-stroke;pointer-events:none}
+.cam{cursor:move}
+.cam .cone{fill:var(--mark);fill-opacity:.22;stroke:var(--mark);stroke-width:1.2px;vector-effect:non-scaling-stroke}
+.cam .dot{fill:var(--mark);stroke:var(--card);stroke-width:1.5px;vector-effect:non-scaling-stroke}
+.cam.dim2{opacity:.45}
+.cam.sel .cone{fill-opacity:.32;stroke-width:2px}
+.cam.sel .dot{stroke-width:2.5px}
+.h-rot{fill:var(--card);stroke:var(--mark);stroke-width:2.5px;vector-effect:non-scaling-stroke;cursor:crosshair}
+.rotline{stroke:var(--mark);stroke-width:1.5px;stroke-dasharray:4 3;vector-effect:non-scaling-stroke;pointer-events:none}
+
+@media (max-width:900px){
+  body{height:auto;min-height:100%}
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .stage{height:70vh}
+  .panel{border-left:0;border-top:1px solid var(--line)}
+  .tools{margin-left:0}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Floor plan editor</h1>
+  <span class="pill" id="status">Matches the site</span>
+  <div class="tools">
+    <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z)">Undo</button>
+    <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
+    <span class="sep"></span>
+    <label class="tog" title="When you move a wall, every wall lined up with it and touching it moves too"><input type="checkbox" id="optConnected" checked> Move lined-up walls together</label>
+    <label class="tog" title="While dragging, walls jump into line with nearby walls"><input type="checkbox" id="optSnap" checked> Snap to other walls</label>
+    <span class="sep"></span>
+    <select class="btn" id="addType" aria-label="Kind of door or window to add">
+      <option value="door">Door</option>
+      <option value="double">Double doors</option>
+      <option value="french">French doors (red)</option>
+      <option value="bifold">Bifold doors</option>
+      <option value="window">Window</option>
+      <option value="arched">Arched window</option>
+      <option value="open">Open wall</option>
+      <option value="garage">Garage door</option>
+    </select>
+    <button type="button" class="btn" id="addBtn">Add to a wall</button>
+    <span class="sep"></span>
+    <a class="btn" id="previewLink" href="index.html?preview" target="_blank" rel="noopener">Preview the tour</a>
+    <button type="button" class="btn primary" id="saveBtn">Save to the site</button>
+  </div>
+</header>
+<div class="banner" id="draftBar" hidden>
+  <span>You have changes from earlier that aren't on the site yet. They're loaded below.</span>
+  <button type="button" class="btn" id="draftDiscard">Throw them away and start from the site</button>
+  <button type="button" class="btn" id="draftKeep">Keep editing</button>
+</div>
+<div class="layout">
+  <div class="stage" id="stage">
+    <svg id="ed" xmlns="http://www.w3.org/2000/svg" aria-label="Floor plan you can edit"></svg>
+    <div class="layers">
+      <b>Can grab:</b>
+      <label class="tog"><input type="checkbox" id="lyOp" checked> Doors and windows</label>
+      <label class="tog"><input type="checkbox" id="lyFx" checked> Counters and fixtures</label>
+      <label class="tog"><input type="checkbox" id="lyLbl" checked> Room names</label>
+      <label class="tog"><input type="checkbox" id="lyCam" checked> Photo spots</label>
+    </div>
+    <div class="zoom">
+      <button type="button" class="btn" id="zin" aria-label="Zoom in">+</button>
+      <button type="button" class="btn" id="zout" aria-label="Zoom out">&minus;</button>
+      <button type="button" class="btn" id="zfit">Fit</button>
+    </div>
+    <div class="statusline"><span id="live"></span><span id="coords"></span></div>
+  </div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<div class="dlg" id="saveDlg" hidden role="dialog" aria-modal="true" aria-labelledby="saveTitle">
+  <div class="box">
+    <h2 id="saveTitle">Save your changes to the site</h2>
+    <p>This page can't change GitHub by itself, so saving takes three quick steps.</p>
+    <ol>
+      <li><button type="button" class="btn primary" id="copyBtn">Copy the new plan</button> <span id="copyMsg" class="ok"></span></li>
+      <li><a class="btn" id="ghLink" href="#" target="_blank" rel="noopener">Open plan-data.js on GitHub</a><br>It opens GitHub's editor for that file. Sign in as Good-Dog13 if it asks.</li>
+      <li>Click inside GitHub's editor, select everything (<kbd>Ctrl</kbd>+<kbd>A</kbd>, or <kbd>Cmd</kbd>+<kbd>A</kbd> on a Mac), paste (<kbd>Ctrl</kbd>+<kbd>V</kbd> or <kbd>Cmd</kbd>+<kbd>V</kbd>), then choose <b>Commit changes</b> twice.</li>
+    </ol>
+    <p>The site updates within a few minutes. Reload this editor afterward and the label at the top will say <b>Matches the site</b>.</p>
+    <details>
+      <summary>Other ways to save</summary>
+      <p style="margin:10px 0">Download the file, then on GitHub choose <b>Add file &gt; Upload files</b> and drop it in. A file with the same name replaces the old one.</p>
+      <button type="button" class="btn" id="dlBtn">Download plan-data.js</button>
+      <p style="margin:10px 0 6px">Or copy it from here:</p>
+      <textarea id="fileText" readonly aria-label="The new plan-data.js"></textarea>
+    </details>
+    <div class="row" style="justify-content:flex-end"><button type="button" class="btn" id="saveClose">Close</button></div>
+  </div>
+</div>
+
+<script src="plan-data.js"></script>
+<script src="plan-draw.js"></script>
+<script>
+(() => {
+"use strict";
+const PD = window.PlanDraw;
+const KEY = "home-tour:draft";
+const clone = o => JSON.parse(JSON.stringify(o));
+const SITE = clone(window.HOUSE), SITE_JSON = JSON.stringify(SITE);
+const $ = id => document.getElementById(id);
+const near = (a, b) => Math.abs(a - b) < 0.01;
+const esc = PD.esc;
+const NAMES = {coat:"Coat closet", hcl1:"Hall closet", hcl2:"Second hall closet", pantry:"Pantry", garage:"Garage", store:"Storeroom", porch1:"Main porch", porch2:"Kitchen porch"};
+const TYPES = {door:["Door",32], double:["Double doors",60], french:["French doors (red)",60], bifold:["Bifold doors",48], window:["Window",36], arched:["Arched window",60], open:["Open wall",48], garage:["Garage door",192]};
+const FXTYPES = {"":"Counter, cabinet or fixture", col:"Column", closet:"Closet or built-in"};
+const KINDS = {room:"Room", other:"Closet, storage or garage", outdoor:"Outdoors (porch)"};
+
+/* ---------- state ---------- */
+let H = clone(SITE);
+let draftOnLoad = false;
+try{
+  const d = localStorage.getItem(KEY);
+  if(d && d !== SITE_JSON){ H = JSON.parse(d); draftOnLoad = true; }
+}catch(e){}
+const undoStack = [], redoStack = [];
+let sel = null;            /* {k:"room", i, e} | {k:"op", i} | {k:"fx", i} | {k:"cam", r, p} */
+let drag = null, addMode = false, live = "";
+const opts = {connected:true, snap:true};
+const svg = $("ed"), stage = $("stage");
+let vb = null;
+
+/* ---------- small helpers ---------- */
+const ftin = v => { const neg = v < 0; v = Math.abs(Math.round(v)); const f = Math.floor(v / 12), i = v % 12; return (neg ? "-" : "") + (f ? `${f}′ ${i}″` : `${i}″`); };
+const roomName = r => { const t = H.tour.find(q => q.id === r.id); return t ? t.name : (NAMES[r.id] || r.id); };
+const edgeAt = (poly, e) => [poly[e], poly[(e + 1) % poly.length]];
+const isAxis = (a, b) => near(a[0], b[0]) || near(a[1], b[1]);
+const dirWord = (ax, d) => ax === 0 ? (d > 0 ? "toward the street" : "toward the back") : (d > 0 ? "toward the garage side" : "toward the bedroom wing");
+function facingWords(deg){
+  const names = ["toward the street","toward the street and garage side","toward the garage side","toward the back and garage side","toward the back","toward the back and bedroom wing","toward the bedroom wing","toward the street and bedroom wing"];
+  const k = Math.round((((deg % 360) + 360) % 360) / 45) % 8;
+  return names[k];
+}
+function inside(poly, x, y){
+  let c = false;
+  for(let i = 0, j = poly.length - 1; i < poly.length; j = i++){
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if(((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) c = !c;
+  }
+  return c;
+}
+function bbox(poly){ const xs = poly.map(p => p[0]), ys = poly.map(p => p[1]); return {x0:Math.min(...xs), x1:Math.max(...xs), y0:Math.min(...ys), y1:Math.max(...ys)}; }
+
+/* ---------- view ---------- */
+const scaleNow = () => (svg.clientWidth || 1) / vb.w;
+function fitAspect(b){
+  const W = svg.clientWidth || 800, Hh = svg.clientHeight || 600, a = W / Hh;
+  let w = b.w, h = b.h;
+  if(w / h < a) w = h * a; else h = w / a;
+  return {x:b.x + b.w / 2 - w / 2, y:b.y + b.h / 2 - h / 2, w, h};
+}
+function fit(){ vb = fitAspect(PD.houseBox(H, 50)); render(); }
+function zoomAt(f, cx, cy){
+  const w = Math.min(4000, Math.max(60, vb.w * f)); f = w / vb.w;
+  vb = {x:cx - (cx - vb.x) * f, y:cy - (cy - vb.y) * f, w:vb.w * f, h:vb.h * f};
+  render();
+}
+function rootPoint(e){ const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+function planPoint(e){
+  const w = svg.querySelector(".world");
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  const q = p.matrixTransform(w.getScreenCTM().inverse());
+  return {x:q.x, y:q.y};
+}
+
+/* ---------- walls ---------- */
+/* a wall is a straight run on one line; with "lined-up walls" on, it reaches along every touching segment on that line */
+function wallSpec(h, ri, e, connected){
+  const [a, b] = edgeAt(h.rooms[ri].poly, e);
+  if(!isAxis(a, b)) return null;
+  const isVert = near(a[0], b[0]);            /* constant x: the wall faces the street or the back */
+  const ax = isVert ? 0 : 1, bx = 1 - ax, c = a[ax];
+  let lo = Math.min(a[bx], b[bx]), hi = Math.max(a[bx], b[bx]);
+  if(connected){
+    const iv = [];
+    h.rooms.forEach(r => r.poly.forEach((q, j) => {
+      const w = r.poly[(j + 1) % r.poly.length];
+      if(near(q[ax], c) && near(w[ax], c)) iv.push([Math.min(q[bx], w[bx]), Math.max(q[bx], w[bx])]);
+    }));
+    let grew = true;
+    while(grew){
+      grew = false;
+      for(const [p0, p1] of iv) if(p1 >= lo - 0.5 && p0 <= hi + 0.5 && (p0 < lo - 0.01 || p1 > hi + 0.01)){ lo = Math.min(lo, p0); hi = Math.max(hi, p1); grew = true; }
+    }
+  }
+  return {isVert, ax, bx, c, lo, hi, connected, ri, e};
+}
+function moveWall(h0, h, s, newC){
+  const {ax, bx, c, lo, hi} = s, d = newC - c;
+  const onLine = q => near(q[ax], c) && q[bx] >= lo - 0.01 && q[bx] <= hi + 0.01;
+  if(s.connected){
+    h0.rooms.forEach((r, i) => r.poly.forEach((q, j) => { if(onLine(q)) h.rooms[i].poly[j][ax] = newC; }));
+  } else {
+    const n = h0.rooms[s.ri].poly.length;
+    h.rooms[s.ri].poly[s.e][ax] = newC;
+    h.rooms[s.ri].poly[(s.e + 1) % n][ax] = newC;
+  }
+  h0.openings.forEach((o, i) => { if(onLine(o.a) && onLine(o.b)){ h.openings[i].a[ax] = newC; h.openings[i].b[ax] = newC; } });
+  h0.fixtures.forEach((f, i) => {
+    if(f.poly.filter(onLine).length >= 2) h.fixtures[i].poly.forEach((q, j) => { q[ax] = f.poly[j][ax] + d; });
+  });
+}
+/* the other wall across the room from edge e (for typing an exact size) */
+function oppositeWall(h, ri, e){
+  const poly = h.rooms[ri].poly, [a, b] = edgeAt(poly, e);
+  if(!isAxis(a, b)) return null;
+  const ax = near(a[0], b[0]) ? 0 : 1, bx = 1 - ax;
+  const lo = Math.min(a[bx], b[bx]), hi = Math.max(a[bx], b[bx]);
+  let best = null;
+  poly.forEach((q, j) => {
+    if(j === e) return;
+    const w = poly[(j + 1) % poly.length];
+    if(!(near(q[ax], w[ax]))) return;
+    const ov = Math.min(hi, Math.max(q[bx], w[bx])) - Math.max(lo, Math.min(q[bx], w[bx]));
+    if(ov <= 0.5) return;
+    const dist = Math.abs(q[ax] - a[ax]);
+    if(!best || ov > best.ov + 0.5 || (Math.abs(ov - best.ov) <= 0.5 && dist < best.dist)) best = {c:q[ax], ov, dist};
+  });
+  return best ? {ax, c:best.c, here:a[ax]} : null;
+}
+/* snap a wall position to whole inches, and to other walls nearby when that option is on */
+function snapLine(val, s, scale){
+  let v = Math.round(val), guide = null;
+  if(opts.snap){
+    const tol = 8 / scale;
+    let best = null;
+    H.rooms.forEach(r => r.poly.forEach((q, j) => {
+      const w = r.poly[(j + 1) % r.poly.length];
+      if(!(near(q[s.ax], w[s.ax]))) return;
+      const c = q[s.ax];
+      if(near(c, s.c)) return;
+      const dd = Math.abs(c - val);
+      if(dd < tol && (!best || dd < best.dd)) best = {c, dd};
+    }));
+    if(best){ v = best.c; guide = {ax:s.ax, c:v}; }
+  }
+  return {v, guide};
+}
+
+/* ---------- drawing ---------- */
+function overlay(scale){
+  const u = 1 / scale;
+  let s = "";
+  if(drag && drag.guide){
+    const b = PD.houseBox(H, 200), big = 4000;
+    s += drag.guide.ax === 0
+      ? `<line class="guide" x1="${drag.guide.c}" y1="${-big}" x2="${drag.guide.c}" y2="${big}"/>`
+      : `<line class="guide" x1="${-big}" y1="${drag.guide.c}" x2="${big}" y2="${drag.guide.c}"/>`;
+  }
+  if(sel && sel.k === "room" && H.rooms[sel.i]){
+    const poly = H.rooms[sel.i].poly;
+    s += `<path class="selroom" d="${PD.pts(poly)}"/>`;
+    poly.forEach((a, e) => {
+      const b = poly[(e + 1) % poly.length];
+      if(!isAxis(a, b)) return;
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+      const vert = near(a[0], b[0]);
+      if(sel.e === e) s += `<line class="seledge" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+      /* size label on the inside of each wall */
+      let nx = vert ? 1 : 0, ny = vert ? 0 : 1;
+      if(!inside(poly, mx + nx * 2, my + ny * 2)){ nx = -nx; ny = -ny; }
+      const off = 22 * u;
+      if(len * scale > 34) s += `<text class="dim" text-anchor="middle" dy=".35em" transform="translate(${PD.num(mx + nx * off)},${PD.num(my + ny * off)}) rotate(${-PD.R})">${ftin(len)}</text>`;
+      const hs = 6 * u;
+      /* on screen, a constant-x wall runs side to side, so it is dragged up and down */
+      s += `<rect class="h-edge ${vert ? "v" : "h"}${sel.e === e ? " active" : ""}" data-k="edge" data-e="${e}" x="${PD.num(mx - hs)}" y="${PD.num(my - hs)}" width="${PD.num(2 * hs)}" height="${PD.num(2 * hs)}" rx="${PD.num(2 * u)}"/>`;
+    });
+    poly.forEach((p, v) => { s += `<circle class="h-vtx" data-k="vtx" data-v="${v}" cx="${p[0]}" cy="${p[1]}" r="${PD.num(6.5 * u)}"/>`; });
+  }
+  if(sel && sel.k === "op" && H.openings[sel.i]){
+    const o = H.openings[sel.i];
+    s += `<line class="selop" x1="${o.a[0]}" y1="${o.a[1]}" x2="${o.b[0]}" y2="${o.b[1]}"/>`;
+    for(const end of ["a", "b"]) s += `<circle class="h-vtx" data-k="opEnd" data-end="${end}" cx="${o[end][0]}" cy="${o[end][1]}" r="${PD.num(6.5 * u)}"/>`;
+  }
+  if(sel && sel.k === "fx" && H.fixtures[sel.i]){
+    const f = H.fixtures[sel.i];
+    s += `<path class="selfx" d="${PD.pts(f.poly)}"/>`;
+    f.poly.forEach((p, v) => { s += `<circle class="h-vtx" data-k="fxv" data-v="${v}" cx="${p[0]}" cy="${p[1]}" r="${PD.num(5.5 * u)}"/>`; });
+  }
+  if($("lyCam").checked){
+    const selRoomId = sel && sel.k === "room" && H.rooms[sel.i] ? H.rooms[sel.i].id : (sel && sel.k === "cam" ? H.tour[sel.r].id : null);
+    H.tour.forEach((t, r) => t.photos.forEach((p, k) => {
+      const isSel = sel && sel.k === "cam" && sel.r === r && sel.p === k;
+      if(isSel) return;
+      const L = 26 * u, cls = selRoomId && selRoomId !== t.id ? "cam dim2" : "cam";
+      s += `<g class="${cls}" data-k="cam" data-r="${r}" data-p="${k}" transform="translate(${p.x},${p.y}) rotate(${p.dir}) scale(${PD.num(L)})"><path class="cone" d="M0,0 L0.848,-0.53 A1,1 0 0 1 0.848,0.53 Z"/><circle class="dot" r="0.17"/></g>`;
+    }));
+    if(sel && sel.k === "cam"){
+      const p = H.tour[sel.r].photos[sel.p], L = 64 * u, a = p.dir * Math.PI / 180;
+      const hx = p.x + Math.cos(a) * L * 1.12, hy = p.y + Math.sin(a) * L * 1.12;
+      s += `<g class="cam sel" data-k="cam" data-r="${sel.r}" data-p="${sel.p}" transform="translate(${p.x},${p.y}) rotate(${p.dir}) scale(${PD.num(L)})"><path class="cone" d="M0,0 L0.848,-0.53 A1,1 0 0 1 0.848,0.53 Z"/><circle class="dot" r="0.12"/></g>`;
+      s += `<line class="rotline" x1="${p.x}" y1="${p.y}" x2="${PD.num(hx)}" y2="${PD.num(hy)}"/>`;
+      s += `<circle class="h-rot" data-k="camRot" cx="${PD.num(hx)}" cy="${PD.num(hy)}" r="${PD.num(7 * u)}"/>`;
+    }
+  }
+  return s;
+}
+function render(){
+  if(!vb) return;
+  const scale = scaleNow();
+  svg.setAttribute("viewBox", `${PD.num(vb.x)} ${PD.num(vb.y)} ${PD.num(vb.w)} ${PD.num(vb.h)}`);
+  svg.innerHTML = PD.planMarkup(H, {tag:true, id:"e", extra:overlay(scale)});
+  svg.style.setProperty("--dfs", (11.5 / scale).toFixed(2) + "px");
+  PD.setLabelScale(svg, H, vb.w, true, true);
+  svg.classList.toggle("no-op", !$("lyOp").checked);
+  svg.classList.toggle("no-fx", !$("lyFx").checked);
+  svg.classList.toggle("no-lbl", !$("lyLbl").checked);
+  svg.classList.toggle("adding", addMode);
+  $("live").textContent = live;
+}
+
+/* ---------- history and saving ---------- */
+function setStatus(){
+  const same = JSON.stringify(H) === SITE_JSON;
+  const st = $("status");
+  st.textContent = same ? "Matches the site" : "Changes not on the site yet";
+  st.classList.toggle("dirty", !same);
+  $("undo").disabled = !undoStack.length;
+  $("redo").disabled = !redoStack.length;
+}
+function persist(){
+  try{
+    const j = JSON.stringify(H);
+    if(j === SITE_JSON) localStorage.removeItem(KEY); else localStorage.setItem(KEY, j);
+  }catch(e){}
+  setStatus();
+}
+function commit(prevJson){
+  undoStack.push(prevJson);
+  if(undoStack.length > 200) undoStack.shift();
+  redoStack.length = 0;
+  persist();
+}
+function change(fn){
+  const prev = JSON.stringify(H);
+  fn();
+  if(JSON.stringify(H) !== prev) commit(prev);
+  render(); renderPanel();
+}
+function checkSel(){
+  if(!sel) return;
+  if(sel.k === "room" && !H.rooms[sel.i]) sel = null;
+  else if(sel.k === "op" && !H.openings[sel.i]) sel = null;
+  else if(sel.k === "fx" && !H.fixtures[sel.i]) sel = null;
+  else if(sel.k === "cam" && !(H.tour[sel.r] && H.tour[sel.r].photos[sel.p])) sel = null;
+}
+function undo(){ if(!undoStack.length) return; redoStack.push(JSON.stringify(H)); H = JSON.parse(undoStack.pop()); checkSel(); persist(); render(); renderPanel(); }
+function redo(){ if(!redoStack.length) return; undoStack.push(JSON.stringify(H)); H = JSON.parse(redoStack.pop()); checkSel(); persist(); render(); renderPanel(); }
+
+/* ---------- pointer ---------- */
+svg.addEventListener("pointerdown", e => {
+  if(e.button !== 0) return;
+  const t = e.target.closest("[data-k]");
+  const k = t ? t.dataset.k : null;
+  const p = planPoint(e);
+  if(addMode){ placeOpening(p); return; }
+  try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+  drag = {type:"pan", start:p, sx:e.clientX, sy:e.clientY, base:clone(H), baseJson:JSON.stringify(H), moved:false, vb0:{...vb}, alt:e.altKey, guide:null};
+  if(k === "vtx"){ drag.type = "corner"; drag.v = +t.dataset.v; }
+  else if(k === "edge"){ drag.type = "wall"; sel.e = +t.dataset.e; drag.spec = wallSpec(drag.base, sel.i, sel.e, opts.connected); renderPanel(); }
+  else if(k === "op"){ sel = {k:"op", i:+t.dataset.i}; drag.type = "opMove"; renderPanel(); }
+  else if(k === "opEnd"){ drag.type = "opEnd"; drag.end = t.dataset.end; }
+  else if(k === "fx"){ sel = {k:"fx", i:+t.dataset.i}; drag.type = "fxMove"; renderPanel(); }
+  else if(k === "fxv"){ drag.type = "fxVtx"; drag.v = +t.dataset.v; }
+  else if(k === "cam"){ sel = {k:"cam", r:+t.dataset.r, p:+t.dataset.p}; drag.type = "camMove"; renderPanel(); }
+  else if(k === "camRot"){ drag.type = "camRot"; }
+  else if(k === "lbl"){ sel = {k:"room", i:+t.dataset.i, e:null}; drag.type = "lblMove"; renderPanel(); }
+  else if(k === "room"){ drag.click = {k:"room", i:+t.dataset.i, e:null}; }
+  else drag.click = "none";
+  if(drag.type !== "pan") render();
+});
+svg.addEventListener("pointermove", e => {
+  const p = planPoint(e);
+  $("coords").textContent = `x ${Math.round(p.x)}, y ${Math.round(p.y)} (inches)`;
+  if(!drag) return;
+  if(!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 3) return;
+  drag.moved = true;
+  const scale = scaleNow(), b = drag.base;
+  if(drag.type === "pan"){
+    svg.classList.add("panning");
+    vb.x = drag.vb0.x - (e.clientX - drag.sx) / scale;
+    vb.y = drag.vb0.y - (e.clientY - drag.sy) / scale;
+    render(); return;
+  }
+  H = clone(b); drag.guide = null;
+  if(drag.type === "wall" && drag.spec){
+    const s = drag.spec, sn = snapLine(s.ax === 0 ? p.x : p.y, s, scale);
+    moveWall(b, H, s, sn.v); drag.guide = sn.guide;
+    const d = sn.v - s.c;
+    live = d ? `Moved ${ftin(Math.abs(d))} ${dirWord(s.ax, d)}` : "Not moved";
+  } else if(drag.type === "corner"){
+    const poly = b.rooms[sel.i].poly, n = poly.length, v = drag.v;
+    const s1 = wallSpec(b, sel.i, (v - 1 + n) % n, opts.connected), s2 = wallSpec(b, sel.i, v, opts.connected);
+    if(drag.alt || !s1 || !s2 || s1.ax === s2.ax){
+      const q0 = poly[v], np = [Math.round(p.x), Math.round(p.y)];
+      if(opts.connected) b.rooms.forEach((r, i) => r.poly.forEach((q, j) => { if(near(q[0], q0[0]) && near(q[1], q0[1])) H.rooms[i].poly[j] = [...np]; }));
+      else H.rooms[sel.i].poly[v] = [...np];
+      live = "Moving just this corner";
+    } else {
+      const parts = [];
+      for(const s of [s1, s2]){
+        const sn = snapLine(s.ax === 0 ? p.x : p.y, s, scale);
+        moveWall(b, H, s, sn.v);
+        if(sn.guide) drag.guide = sn.guide;
+        const d = sn.v - s.c;
+        if(d) parts.push(`${ftin(Math.abs(d))} ${dirWord(s.ax, d)}`);
+      }
+      live = parts.length ? "Moved " + parts.join(", ") : "Not moved";
+    }
+  } else if(drag.type === "opMove" || drag.type === "opEnd"){
+    const o0 = b.openings[sel.i], horiz = near(o0.a[1], o0.b[1]), ax = horiz ? 0 : 1;
+    const o = H.openings[sel.i];
+    if(drag.type === "opMove"){
+      const d = Math.round((ax === 0 ? p.x : p.y) - (ax === 0 ? drag.start.x : drag.start.y));
+      o.a[ax] = o0.a[ax] + d; o.b[ax] = o0.b[ax] + d;
+      live = d ? `Slid ${ftin(Math.abs(d))} ${dirWord(ax, d)}` : "";
+    } else {
+      const other = drag.end === "a" ? "b" : "a";
+      let v = Math.round(ax === 0 ? p.x : p.y);
+      if(Math.abs(v - o0[other][ax]) < 6) v = o0[other][ax] + (v >= o0[other][ax] ? 6 : -6);
+      o[drag.end][ax] = v;
+      live = `Width ${ftin(Math.abs(o.b[ax] - o.a[ax]))}`;
+    }
+  } else if(drag.type === "fxMove"){
+    const dx = Math.round(p.x - drag.start.x), dy = Math.round(p.y - drag.start.y);
+    H.fixtures[sel.i].poly = b.fixtures[sel.i].poly.map(q => [q[0] + dx, q[1] + dy]);
+    live = "";
+  } else if(drag.type === "fxVtx"){
+    H.fixtures[sel.i].poly[drag.v] = [Math.round(p.x), Math.round(p.y)];
+  } else if(drag.type === "camMove"){
+    const ph = H.tour[sel.r].photos[sel.p];
+    ph.x = Math.round(p.x); ph.y = Math.round(p.y);
+    live = "Moving the photo spot";
+  } else if(drag.type === "camRot"){
+    const ph = H.tour[sel.r].photos[sel.p];
+    let a = Math.round(Math.atan2(p.y - ph.y, p.x - ph.x) * 180 / Math.PI / 5) * 5;
+    if(a <= -180) a += 360;
+    ph.dir = a;
+    live = `Facing ${facingWords(a)} (${a}°)`;
+  } else if(drag.type === "lblMove"){
+    H.rooms[drag.lbl !== undefined ? drag.lbl : sel.i].label = [Math.round(p.x), Math.round(p.y)];
+  }
+  render(); renderPanel(true);
+});
+function endDrag(){
+  if(!drag) return;
+  const d = drag; drag = null;
+  svg.classList.remove("panning");
+  if(d.type === "pan"){
+    if(!d.moved && d.click){ sel = d.click === "none" ? null : d.click; renderPanel(); }
+    render(); return;
+  }
+  live = "";
+  if(d.moved && JSON.stringify(H) !== d.baseJson) commit(d.baseJson);
+  render(); renderPanel();
+}
+svg.addEventListener("pointerup", endDrag);
+svg.addEventListener("pointercancel", endDrag);
+svg.addEventListener("wheel", e => {
+  e.preventDefault();
+  const c = rootPoint(e);
+  zoomAt(Math.exp(e.deltaY * 0.0015), c.x, c.y);
+}, {passive:false});
+
+/* ---------- adding a door or window ---------- */
+function placeOpening(p){
+  const scale = scaleNow(), tol = 16 / scale;
+  let best = null;
+  H.rooms.forEach(r => {
+    if(r.kind === "outdoor") return;
+    r.poly.forEach((a, e) => {
+      const b = r.poly[(e + 1) % r.poly.length];
+      if(!isAxis(a, b)) return;
+      const ax = near(a[0], b[0]) ? 0 : 1, bx = 1 - ax;
+      const lo = Math.min(a[bx], b[bx]), hi = Math.max(a[bx], b[bx]);
+      const along = Math.max(lo, Math.min(hi, bx === 0 ? p.x : p.y));
+      const dist = Math.abs((ax === 0 ? p.x : p.y) - a[ax]) + Math.max(0, Math.abs((bx === 0 ? p.x : p.y) - along));
+      if(dist < tol && (!best || dist < best.dist)) best = {ax, bx, c:a[ax], lo, hi, along, dist};
+    });
+  });
+  if(!best){ live = "Click right on a wall to place it"; render(); return; }
+  const type = $("addType").value, w = Math.min(TYPES[type][1], best.hi - best.lo);
+  let mid = Math.round(best.along);
+  mid = Math.max(best.lo + w / 2, Math.min(best.hi - w / 2, mid));
+  const a = [0, 0], b = [0, 0];
+  a[best.ax] = b[best.ax] = best.c;
+  a[best.bx] = Math.round(mid - w / 2); b[best.bx] = a[best.bx] + w;
+  /* an outside wall has rooms on one side only */
+  const probe = 4, pt1 = [0, 0], pt2 = [0, 0];
+  pt1[best.ax] = best.c - probe; pt2[best.ax] = best.c + probe; pt1[best.bx] = pt2[best.bx] = mid;
+  const hit = q => H.rooms.some(r => r.kind !== "outdoor" && inside(r.poly, q[0], q[1]));
+  const ext = !(hit(pt1) && hit(pt2));
+  const side = hit(pt2) ? 1 : -1;
+  change(() => {
+    H.openings.push({type, a, b, side, hinge:"a", ext});
+    sel = {k:"op", i:H.openings.length - 1};
+  });
+  setAdd(false);
+  live = `Added ${TYPES[type][0].toLowerCase()}`;
+  render();
+}
+function setAdd(on){
+  addMode = on;
+  $("addBtn").classList.toggle("on", on);
+  $("addBtn").textContent = on ? "Click a wall (Esc to stop)" : "Add to a wall";
+  live = on ? "Click on a wall where the new one should go" : "";
+  render();
+}
+
+/* ---------- inspector panel ---------- */
+function field(label, html){ return `<label class="field"><span>${label}</span>${html}</label>`; }
+function spotsList(onlyRoom){
+  return H.tour.filter(t => !onlyRoom || t.id === onlyRoom).map(t => {
+    const r = H.tour.indexOf(t);
+    return `<div><h4>${esc(t.name)}</h4><div class="spotgrid">${t.photos.map((p, k) =>
+      `<button type="button" data-spot="${r},${k}" aria-label="${esc(t.name)} photo ${k + 1}: ${esc(p.cap)}" aria-current="${sel && sel.k === "cam" && sel.r === r && sel.p === k}"><img src="thumbs/${esc(p.f)}.jpg" alt="" loading="lazy"></button>`).join("")}</div></div>`;
+  }).join("");
+}
+function renderPanel(liveOnly){
+  const P = $("panel");
+  if(liveOnly){
+    /* during a drag, only refresh the numbers so typing focus isn't lost */
+    const sz = P.querySelector("[data-size]");
+    if(sz && sel && sel.k === "room") sz.innerHTML = sizeHtml(H.rooms[sel.i]);
+    if(sel && sel.k === "cam"){
+      const ph = H.tour[sel.r].photos[sel.p];
+      const fx = P.querySelector("#camX"), fy = P.querySelector("#camY"), fd = P.querySelector("#camDir"), fw = P.querySelector("[data-facing]");
+      if(fx) fx.value = ph.x; if(fy) fy.value = ph.y; if(fd) fd.value = ph.dir; if(fw) fw.textContent = facingWords(ph.dir);
+    }
+    if(sel && sel.k === "op"){
+      const o = H.openings[sel.i], fw = P.querySelector("#opW");
+      if(fw) fw.value = Math.round(Math.hypot(o.b[0] - o.a[0], o.b[1] - o.a[1]));
+    }
+    return;
+  }
+  let s = "";
+  if(!sel){
+    s += `<div class="group"><h2>How to edit</h2>
+      <ul class="help">
+        <li><b>Click a room</b> to select it. Squares sit on its walls and circles on its corners.</li>
+        <li><b>Drag a square</b> to move that wall. Walls lined up with it move too, along with any doors, windows and counters on it.</li>
+        <li><b>Drag a corner</b> to move two walls at once. Hold <kbd>Alt</kbd> (<kbd>Option</kbd> on a Mac) to move only that point.</li>
+        <li><b>Drag a door or window</b> to slide it along its wall. Select it to resize it or change its type.</li>
+        <li><b>Drag a photo spot</b> to move it, and drag its round handle to turn it.</li>
+        <li><b>Drag empty space</b> to move around, and use the mouse wheel or the + and &minus; buttons to zoom.</li>
+      </ul></div>
+      <div class="group"><h3>Keys</h3><div class="keys">
+        <kbd>Ctrl</kbd><span>+ Z undo, + Shift + Z redo (Cmd on a Mac)</span>
+        <kbd>Arrows</kbd><span>nudge the selected wall, door or spot 1 inch (hold Shift for 1 foot)</span>
+        <kbd>Delete</kbd><span>remove the selected door, window or fixture</span>
+        <kbd>Esc</kbd><span>clear the selection</span>
+      </div></div>
+      <div class="group"><h3>Photo spots</h3><div class="spots">${spotsList()}</div></div>`;
+  } else if(sel.k === "room"){
+    const r = H.rooms[sel.i], t = H.tour.find(q => q.id === r.id);
+    s += `<div class="group"><h2>${esc(roomName(r))}</h2><p class="sub">${t ? `${t.photos.length} photo${t.photos.length === 1 ? "" : "s"} in the tour` : "No photos"}</p>
+      <dl class="size" data-size>${sizeHtml(r)}</dl></div>`;
+    if(sel.e !== null && sel.e !== undefined){
+      const opp = oppositeWall(H, sel.i, sel.e);
+      if(opp){
+        const cur = Math.abs(opp.here - opp.c);
+        s += `<div class="group"><h3>Selected wall</h3>
+          <p class="sub">Type the size of the room across from this wall. This wall moves; the wall opposite stays put.</p>
+          <div class="row">${field("Feet", `<input type="number" id="szFt" min="0" step="1" value="${Math.floor(Math.round(cur) / 12)}">`)}${field("Inches", `<input type="number" id="szIn" min="0" max="11.5" step="0.5" value="${Math.round(cur) % 12}">`)}
+          <button type="button" class="btn primary" id="szApply">Apply</button></div></div>`;
+      }
+    } else {
+      s += `<p class="sub">Click one of the squares on a wall to type an exact room size.</p>`;
+    }
+    s += `<div class="group"><h3>Name</h3>
+      ${t ? field("Name in the tour", `<input type="text" id="tourName" value="${esc(t.name)}">`) : ""}
+      ${field("Name on the plan (use / for a second line)", `<input type="text" id="lblLines" value="${esc((r.lines || []).join(" / "))}">`)}
+      ${field("Shorter name for small screens (optional)", `<input type="text" id="lblShort" value="${esc((r.short || []).join(" / "))}">`)}
+      ${field("Kind of space", `<select id="roomKind">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}"${(r.kind || "room") === k ? " selected" : ""}>${v}</option>`).join("")}</select>`)}
+      <p class="sub">Drag the room's name on the plan to move it.</p></div>`;
+    if(t) s += `<div class="group"><h3>Photo spots in this room</h3><div class="spots">${spotsList(t.id)}</div></div>`;
+  } else if(sel.k === "op"){
+    const o = H.openings[sel.i], w = Math.round(Math.hypot(o.b[0] - o.a[0], o.b[1] - o.a[1]));
+    const door = ["door", "double", "french", "bifold"].includes(o.type);
+    s += `<div class="group"><h2>${esc(TYPES[o.type] ? TYPES[o.type][0] : o.type)}</h2><p class="sub">Drag it to slide it along the wall, or drag its circles to resize it.</p></div>
+      <div class="group">
+      ${field("Type", `<select id="opType">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}"${o.type === k ? " selected" : ""}>${v[0]}</option>`).join("")}</select>`)}
+      <div class="row">${field("Width in inches", `<input type="number" id="opW" min="6" step="1" value="${w}">`)}<button type="button" class="btn" id="opWApply">Apply</button></div>
+      <div class="row">
+        ${door || o.type === "window" || o.type === "arched" ? `<button type="button" class="btn" id="opSide">Flip to the other side</button>` : ""}
+        ${o.type === "door" ? `<button type="button" class="btn" id="opHinge">Hinge on the other end</button>` : ""}
+      </div>
+      <label class="tog"><input type="checkbox" id="opExt"${o.ext ? " checked" : ""}> On an outside wall</label>
+      ${o.type === "door" ? `<label class="tog"><input type="checkbox" id="opFront"${o.front ? " checked" : ""}> This is the front door</label>` : ""}
+      </div>
+      <div class="group"><button type="button" class="btn danger" id="opDel">Remove this ${esc((TYPES[o.type] ? TYPES[o.type][0] : "opening").toLowerCase())}</button></div>`;
+  } else if(sel.k === "fx"){
+    const f = H.fixtures[sel.i];
+    s += `<div class="group"><h2>${esc(FXTYPES[f.cls || ""] || "Fixture")}</h2><p class="sub">Drag it to move it, or drag its circles to reshape it.</p></div>
+      <div class="group">${field("Type", `<select id="fxType">${Object.entries(FXTYPES).map(([k, v]) => `<option value="${k}"${(f.cls || "") === k ? " selected" : ""}>${v}</option>`).join("")}</select>`)}</div>
+      <div class="group"><button type="button" class="btn danger" id="fxDel">Remove it</button></div>`;
+  } else if(sel.k === "cam"){
+    const t = H.tour[sel.r], ph = t.photos[sel.p];
+    const flat = []; H.tour.forEach((q, r) => q.photos.forEach((_, k) => flat.push([r, k])));
+    const idx = flat.findIndex(([r, k]) => r === sel.r && k === sel.p);
+    s += `<div class="group"><h2>${esc(t.name)}, photo ${sel.p + 1} of ${t.photos.length}</h2>
+      <a href="photos/${esc(ph.f)}.jpg" target="_blank" rel="noopener" title="Open the full photo"><img class="photo" src="photos/${esc(ph.f)}.jpg" alt="${esc(ph.cap)}"></a>
+      <p class="sub">Facing <span data-facing>${facingWords(ph.dir)}</span></p>
+      <div class="row"><button type="button" class="btn" id="spotPrev"${idx <= 0 ? " disabled" : ""}>Previous spot</button><button type="button" class="btn" id="spotNext"${idx >= flat.length - 1 ? " disabled" : ""}>Next spot</button></div></div>
+      <div class="group">${field("Caption", `<textarea id="camCap">${esc(ph.cap)}</textarea>`)}
+      <div class="row">${field("x", `<input type="number" id="camX" step="1" value="${ph.x}">`)}${field("y", `<input type="number" id="camY" step="1" value="${ph.y}">`)}${field("Facing (degrees)", `<input type="number" id="camDir" step="5" value="${ph.dir}">`)}</div>
+      <p class="sub">0 = toward the street, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing.</p></div>`;
+  }
+  s += `<p class="foot">Created in collaboration with Claude AI.</p>`;
+  P.innerHTML = s;
+  wirePanel();
+}
+function sizeHtml(r){
+  const b = bbox(r.poly);
+  const rect = r.poly.length === 4;
+  return `<dt>Front to back</dt><dd>${rect ? "" : "up to "}${ftin(b.x1 - b.x0)}</dd><dt>Side to side</dt><dd>${rect ? "" : "up to "}${ftin(b.y1 - b.y0)}</dd>`;
+}
+function wirePanel(){
+  const P = $("panel"), on = (id, ev, fn) => { const el = P.querySelector("#" + id); if(el) el.addEventListener(ev, fn); };
+  P.querySelectorAll("[data-spot]").forEach(b => b.addEventListener("click", () => {
+    const [r, k] = b.dataset.spot.split(",").map(Number);
+    sel = {k:"cam", r, p:k}; centerOn(H.tour[r].photos[k]); renderPanel(); render();
+  }));
+  if(!sel) return;
+  if(sel.k === "room"){
+    const r = () => H.rooms[sel.i];
+    on("szApply", "click", () => {
+      const v = (+P.querySelector("#szFt").value || 0) * 12 + (+P.querySelector("#szIn").value || 0);
+      const opp = oppositeWall(H, sel.i, sel.e);
+      if(!opp || v <= 0) return;
+      const s = wallSpec(H, sel.i, sel.e, opts.connected);
+      const newC = opp.c + Math.sign(opp.here - opp.c) * v;
+      change(() => { const base = clone(H); moveWall(base, H, s, newC); });
+    });
+    on("tourName", "change", e => change(() => { const t = H.tour.find(q => q.id === r().id); if(t && e.target.value.trim()) t.name = e.target.value.trim(); }));
+    on("lblLines", "change", e => change(() => { const v = e.target.value.split("/").map(x => x.trim()).filter(Boolean); if(v.length){ r().lines = v; if(!r().label){ const b = bbox(r().poly); r().label = [Math.round((b.x0 + b.x1) / 2), Math.round((b.y0 + b.y1) / 2)]; } } else { delete r().lines; delete r().label; } }));
+    on("lblShort", "change", e => change(() => { const v = e.target.value.split("/").map(x => x.trim()).filter(Boolean); if(v.length) r().short = v; else delete r().short; }));
+    on("roomKind", "change", e => change(() => { r().kind = e.target.value; }));
+  } else if(sel.k === "op"){
+    const o = () => H.openings[sel.i];
+    on("opType", "change", e => change(() => { o().type = e.target.value; if(o().type !== "door") delete o().front; }));
+    on("opWApply", "click", () => {
+      const w = Math.max(6, Math.round(+P.querySelector("#opW").value || 0));
+      change(() => { const q = o(), ax = near(q.a[1], q.b[1]) ? 0 : 1, mid = (q.a[ax] + q.b[ax]) / 2, sgn = q.b[ax] >= q.a[ax] ? 1 : -1; q.a[ax] = Math.round(mid - sgn * w / 2); q.b[ax] = q.a[ax] + sgn * w; });
+    });
+    on("opSide", "click", () => change(() => { o().side = -o().side; }));
+    on("opHinge", "click", () => change(() => { o().hinge = o().hinge === "b" ? "a" : "b"; }));
+    on("opExt", "change", e => change(() => { o().ext = e.target.checked; }));
+    on("opFront", "change", e => change(() => { H.openings.forEach(q => delete q.front); if(e.target.checked) o().front = true; }));
+    on("opDel", "click", () => change(() => { H.openings.splice(sel.i, 1); sel = null; }));
+  } else if(sel.k === "fx"){
+    on("fxType", "change", e => change(() => { H.fixtures[sel.i].cls = e.target.value; }));
+    on("fxDel", "click", () => change(() => { H.fixtures.splice(sel.i, 1); sel = null; }));
+  } else if(sel.k === "cam"){
+    const ph = () => H.tour[sel.r].photos[sel.p];
+    on("camCap", "change", e => change(() => { ph().cap = e.target.value.trim(); }));
+    on("camX", "change", e => change(() => { ph().x = Math.round(+e.target.value || 0); }));
+    on("camY", "change", e => change(() => { ph().y = Math.round(+e.target.value || 0); }));
+    on("camDir", "change", e => change(() => { let a = Math.round(+e.target.value || 0); a = ((a + 180) % 360 + 360) % 360 - 180; ph().dir = a; }));
+    const go = d => {
+      const flat = []; H.tour.forEach((q, r) => q.photos.forEach((_, k) => flat.push([r, k])));
+      const idx = flat.findIndex(([r, k]) => r === sel.r && k === sel.p), nx = flat[idx + d];
+      if(nx){ sel = {k:"cam", r:nx[0], p:nx[1]}; centerOn(H.tour[nx[0]].photos[nx[1]]); renderPanel(); render(); }
+    };
+    on("spotPrev", "click", () => go(-1));
+    on("spotNext", "click", () => go(1));
+  }
+}
+function centerOn(ph){
+  const [sx, sy] = PD.toScreen([ph.x, ph.y]);
+  const b = svg.getBoundingClientRect();
+  /* keep the spot comfortably inside the view without changing the zoom unless it's far out */
+  if(vb.w > 700){ const f = 520 / vb.w; vb.w *= f; vb.h *= f; }
+  vb.x = sx - vb.w / 2; vb.y = sy - vb.h / 2;
+  if(!b.width) return;
+}
+
+/* ---------- keyboard ---------- */
+window.addEventListener("keydown", e => {
+  const typing = e.target.closest && e.target.closest("input,textarea,select");
+  const mod = e.ctrlKey || e.metaKey;
+  if(mod && e.key.toLowerCase() === "z" && !typing){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if(mod && e.key.toLowerCase() === "y" && !typing){ e.preventDefault(); redo(); return; }
+  if(typing) return;
+  if(e.key === "Escape"){
+    if(!$("saveDlg").hidden){ closeSave(); return; }
+    if(addMode){ setAdd(false); return; }
+    sel = null; render(); renderPanel(); return;
+  }
+  if((e.key === "Delete" || e.key === "Backspace") && sel){
+    if(sel.k === "op"){ e.preventDefault(); change(() => { H.openings.splice(sel.i, 1); sel = null; }); }
+    else if(sel.k === "fx"){ e.preventDefault(); change(() => { H.fixtures.splice(sel.i, 1); sel = null; }); }
+    return;
+  }
+  const arrows = {ArrowDown:[1, 0], ArrowUp:[-1, 0], ArrowRight:[0, -1], ArrowLeft:[0, 1]};   /* screen direction to plan inches */
+  if(arrows[e.key] && sel){
+    e.preventDefault();
+    const step = e.shiftKey ? 12 : 1, [dx, dy] = arrows[e.key].map(v => v * step);
+    change(() => {
+      if(sel.k === "room" && sel.e !== null && sel.e !== undefined){
+        const s = wallSpec(H, sel.i, sel.e, opts.connected); if(!s) return;
+        const d = s.ax === 0 ? dx : dy; if(!d) return;
+        const base = clone(H); moveWall(base, H, s, s.c + d);
+      } else if(sel.k === "op"){
+        const o = H.openings[sel.i], ax = near(o.a[1], o.b[1]) ? 0 : 1, d = ax === 0 ? dx : dy;
+        o.a[ax] += d; o.b[ax] += d;
+      } else if(sel.k === "fx"){
+        H.fixtures[sel.i].poly.forEach(q => { q[0] += dx; q[1] += dy; });
+      } else if(sel.k === "cam"){
+        const ph = H.tour[sel.r].photos[sel.p]; ph.x += dx; ph.y += dy;
+      }
+    });
+  }
+});
+
+/* ---------- toolbar ---------- */
+$("undo").addEventListener("click", undo);
+$("redo").addEventListener("click", redo);
+$("optConnected").addEventListener("change", e => { opts.connected = e.target.checked; });
+$("optSnap").addEventListener("change", e => { opts.snap = e.target.checked; });
+$("addBtn").addEventListener("click", () => setAdd(!addMode));
+["lyOp", "lyFx", "lyLbl", "lyCam"].forEach(id => $(id).addEventListener("change", render));
+$("zin").addEventListener("click", () => zoomAt(1 / 1.3, vb.x + vb.w / 2, vb.y + vb.h / 2));
+$("zout").addEventListener("click", () => zoomAt(1.3, vb.x + vb.w / 2, vb.y + vb.h / 2));
+$("zfit").addEventListener("click", fit);
+$("previewLink").addEventListener("click", persist);
+
+/* GitHub address for plan-data.js, worked out from where this page is hosted */
+function ghEditUrl(){
+  let owner = "Good-Dog13", repo = "Home-Tour";
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/i);
+  if(m){ owner = m[1]; const seg = location.pathname.split("/").filter(Boolean)[0]; if(seg && !/\.html?$/i.test(seg)) repo = seg; }
+  return `https://github.com/${owner}/${repo}/edit/main/plan-data.js`;
+}
+function openSave(){
+  const text = PD.serialize(H);
+  $("fileText").value = text;
+  $("ghLink").href = ghEditUrl();
+  $("copyMsg").textContent = "";
+  $("saveDlg").hidden = false;
+  $("copyBtn").focus();
+}
+function closeSave(){ $("saveDlg").hidden = true; $("saveBtn").focus(); }
+$("saveBtn").addEventListener("click", openSave);
+$("saveClose").addEventListener("click", closeSave);
+$("saveDlg").addEventListener("click", e => { if(e.target === $("saveDlg")) closeSave(); });
+$("copyBtn").addEventListener("click", () => {
+  const text = $("fileText").value;
+  const done = () => { $("copyMsg").textContent = "Copied. Now open GitHub."; };
+  const fallback = () => { const t = $("fileText"); t.closest("details").open = true; t.focus(); t.select(); try{ document.execCommand("copy"); done(); }catch(e){ $("copyMsg").textContent = "Press Ctrl+C (Cmd+C on a Mac) to copy the selected text."; } };
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+});
+$("dlBtn").addEventListener("click", () => {
+  const blob = new Blob([$("fileText").value], {type:"text/javascript"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "plan-data.js";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+$("draftKeep").addEventListener("click", () => { $("draftBar").hidden = true; });
+$("draftDiscard").addEventListener("click", () => {
+  const prev = JSON.stringify(H);
+  H = clone(SITE); sel = null; commit(prev); $("draftBar").hidden = true; render(); renderPanel();
+});
+
+/* ---------- start ---------- */
+new ResizeObserver(() => {
+  if(!svg.clientWidth) return;
+  if(!vb){ fit(); return; }
+  const a = svg.clientWidth / svg.clientHeight, cx = vb.x + vb.w / 2, cy = vb.y + vb.h / 2;
+  vb.h = vb.w / a; vb.y = cy - vb.h / 2; vb.x = cx - vb.w / 2;
+  render();
+}).observe(stage);
+$("draftBar").hidden = !draftOnLoad;
+setStatus();
+renderPanel();
+window.__editor = {get house(){ return H; }, get sel(){ return sel; }, serialize:() => PD.serialize(H), undo, redo};
+})();
+</script>
+</body>
+</html>
