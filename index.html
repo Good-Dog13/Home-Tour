@@ -175,6 +175,21 @@ p{margin:0}
 .lbl.front text{fill:var(--muted);font-weight:600;stroke:var(--sheet);font-size:calc(var(--fs, 14px) * .82)}
 .arrow{stroke:var(--muted);stroke-width:1.6;fill:none}
 .arrowhead{fill:var(--muted)}
+/* orientation: backyard and front yard labels, the street, and the compass */
+.orient text{font-family:var(--display);font-size:var(--fs, 14px)}
+.orient .yard{fill:var(--muted);font-weight:700;letter-spacing:.03em}
+.orient .street{fill:var(--floor-off);stroke:var(--line);stroke-width:1.5}
+.orient .streetname{fill:var(--muted);font-weight:700;letter-spacing:.2em}
+.compass .ring{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.compass .needle-n{fill:var(--ink)}
+.compass .needle-s{fill:none;stroke:var(--muted);stroke-width:1.2}
+.compass .pt{fill:var(--muted);font-weight:650;font-size:calc(var(--fs, 14px) * .8)}
+.compass .pt.main{fill:var(--ink);font-weight:800;font-size:var(--fs, 14px)}
+.minibox{position:relative}
+.nbadge{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;align-items:center;gap:1px;
+  background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px 7px 5px;
+  font:800 .85rem/1 var(--display);color:var(--ink)}
+.nbadge svg{width:14px;height:14px}
 .cone{fill:var(--mark);fill-opacity:.28;stroke:var(--mark);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .dot{fill:var(--mark);stroke:var(--card);stroke-width:3;vector-effect:non-scaling-stroke}
 @media (prefers-reduced-motion: no-preference){
@@ -208,7 +223,7 @@ p{margin:0}
   </section>
 
   <section class="plancard" aria-label="House plan">
-    <svg id="plan" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="House plan. The front of the house is at the bottom."></svg>
+    <svg id="plan" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="House plan. The front of the house and the street are at the bottom, and the backyard is at the top."></svg>
     <div class="legend">
       <span><i class="sw on"></i>Tap to see photos</span>
       <span><i class="sw off"></i>Closets, garage and storeroom (no photos)</span>
@@ -252,7 +267,10 @@ p{margin:0}
     <aside class="side">
       <section class="card">
         <h2>Where this photo was taken</h2>
-        <svg id="mini" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+        <div class="minibox">
+          <svg id="mini" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+          <span class="nbadge" id="nbadge" title="North is at the top"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1L12 12L7 9L2 12Z" fill="currentColor"/></svg><span id="nletter">N</span></span>
+        </div>
         <p class="key">
           <svg viewBox="0 0 34 26" aria-hidden="true"><path class="cone" d="M7 13 L31 3 A26 26 0 0 1 31 23 Z"/><circle class="dot" cx="7" cy="13" r="5"/></svg>
           <span>The dot is where the camera stood. The wedge shows which way it was facing.</span>
@@ -296,7 +314,7 @@ const thumbUrl = f => `thumbs/${f}.jpg`;
 const plural = n => n === 1 ? "1 photo" : `${n} photos`;
 const reduceMotion = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CAM = `<g class="cam" id="cam"><path class="cone" d="M0,0 L0.848,-0.53 A1,1 0 0 1 0.848,0.53 Z"/><circle class="dot" r="0.13"/></g>`;
-const baseMarkup = interactive => PD.planMarkup(H, {interactive, id: interactive ? "1" : "2", extra: interactive ? "" : CAM});
+const baseMarkup = interactive => PD.planMarkup(H, {interactive, orient: interactive, id: interactive ? "1" : "2", extra: interactive ? "" : CAM});
 const setLabelScale = (svg, vbW) => PD.setLabelScale(svg, H, vbW);
 if(preview){
   const b = document.createElement("p");
@@ -308,7 +326,9 @@ if(preview){
 /* ============ home screen ============ */
 const plan = $("plan");
 plan.innerHTML = baseMarkup(true);
-const homeBox = PD.houseBox(H, 12);
+const homeBox = PD.planBox(H);
+/* the small marker on each room's close-up plan points to whichever direction is at the top */
+(() => { const up = PD.compass(H).up; $("nletter").textContent = up[0].toUpperCase(); $("nbadge").title = up[0].toUpperCase() + up.slice(1) + " is at the top"; })();
 plan.setAttribute("viewBox", `${homeBox.x} ${homeBox.y} ${homeBox.w} ${homeBox.h}`);
 plan.style.aspectRatio = `${homeBox.w} / ${homeBox.h}`;
 plan.addEventListener("click", e => {

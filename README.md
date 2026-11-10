@@ -48,7 +48,11 @@ Things worth knowing:
 {"f": "kitchen-3", "x": 175, "y": 305, "dir": 95, "cap": "Pantry and fridge on the left, stove ahead, sink on the right"}
 ```
 
-`dir` is the way the camera faced: 0 = toward the street, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing. If the tour goes blank after a hand edit, look for a missing comma or bracket, or use the file's **History** on GitHub to go back.
+`dir` is the way the camera faced: 0 = toward the street, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing.
+
+`"front": "south"` near the top says which way the front of the house faces. The plan is always drawn with the front and the street at the bottom, so the compass and the Backyard and Front yard labels follow from it: north is up, the garage side is west and the bedroom wing is east.
+
+If the tour goes blank after a hand edit, look for a missing comma or bracket, or use the file's **History** on GitHub to go back.
 
 ## The one-file version
 

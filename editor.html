@@ -144,6 +144,15 @@ kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:
 .lbl.front text{fill:var(--muted);font-weight:600;stroke:var(--sheet);font-size:calc(var(--fs, 14px) * .82)}
 .arrow{stroke:var(--muted);stroke-width:1.6;fill:none}
 .arrowhead{fill:var(--muted)}
+.orient text{font-family:var(--display);font-size:var(--fs, 14px)}
+.orient .yard{fill:var(--muted);font-weight:700;letter-spacing:.03em}
+.orient .street{fill:var(--floor-off);stroke:var(--line);stroke-width:1.5}
+.orient .streetname{fill:var(--muted);font-weight:700;letter-spacing:.2em}
+.compass .ring{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.compass .needle-n{fill:var(--ink)}
+.compass .needle-s{fill:none;stroke:var(--muted);stroke-width:1.2}
+.compass .pt{fill:var(--muted);font-weight:650;font-size:calc(var(--fs, 14px) * .8)}
+.compass .pt.main{fill:var(--ink);font-weight:800;font-size:var(--fs, 14px)}
 #ed.no-op .op,#ed.no-fx .fx,#ed.no-lbl .lbl{pointer-events:none}
 #ed.no-op .op:hover .hit{stroke:transparent}
 
@@ -338,7 +347,7 @@ function fitAspect(b){
   if(w / h < a) w = h * a; else h = w / a;
   return {x:b.x + b.w / 2 - w / 2, y:b.y + b.h / 2 - h / 2, w, h};
 }
-function fit(){ vb = fitAspect(PD.houseBox(H, 50)); render(); }
+function fit(){ const b = PD.planBox(H); vb = fitAspect({x:b.x - 30, y:b.y - 90, w:b.w + 60, h:b.h + 120}); render(); }
 function zoomAt(f, cx, cy){
   const w = Math.min(4000, Math.max(60, vb.w * f)); f = w / vb.w;
   vb = {x:cx - (cx - vb.x) * f, y:cy - (cy - vb.y) * f, w:vb.w * f, h:vb.h * f};
@@ -635,7 +644,7 @@ function render(){
   if(!vb) return;
   const scale = scaleNow();
   svg.setAttribute("viewBox", `${PD.num(vb.x)} ${PD.num(vb.y)} ${PD.num(vb.w)} ${PD.num(vb.h)}`);
-  svg.innerHTML = PD.planMarkup(H, {tag:true, id:"e", extra:overlay(scale)});
+  svg.innerHTML = PD.planMarkup(H, {tag:true, orient:true, id:"e", extra:overlay(scale)});
   svg.style.setProperty("--dfs", (11.5 / scale).toFixed(2) + "px");
   PD.setLabelScale(svg, H, vb.w, true, true);
   svg.classList.toggle("no-op", !$("lyOp").checked);

@@ -154,7 +154,8 @@
      opts.interactive: rooms with photos become buttons (tour home screen)
      opts.tag: every room, fixture and opening carries data-k / data-i (editor)
      opts.id: suffix that keeps the arrow marker id unique when a page has two plans
-     opts.extra: markup added on top, inside the rotated group */
+     opts.extra: markup added on top, inside the rotated group
+     opts.orient: add the backyard, front yard and street labels and a compass (pair with planBox for the view) */
   function planMarkup(house, opts) {
     opts = opts || {};
     const mid = "ah" + (opts.id || "");
@@ -185,6 +186,45 @@
     s += `<g class="labels"></g>`;
     s += opts.extra || "";
     s += `</g>`;
+    if (opts.orient) s += orientMarkup(house);
+    return s;
+  }
+
+  /* which compass direction is up, down, left and right on screen. The plan is drawn in street view, so the
+     direction the front of the house faces (house.front, e.g. "south") is at the bottom */
+  const DIRS = ["north", "east", "south", "west"];
+  function compass(house) {
+    let i = DIRS.indexOf(String(house.front || "south").toLowerCase());
+    if (i < 0) i = 2;
+    return {down: DIRS[i], up: DIRS[(i + 2) % 4], right: DIRS[(i + 3) % 4], left: DIRS[(i + 1) % 4]};
+  }
+
+  /* the whole drawing area: the house plus room above it for "Backyard" and below it for the front yard and street */
+  const TOP_BAND = 44, BOTTOM_BAND = 104;
+  function planBox(house) {
+    const b = houseBox(house, 12);
+    return {x: b.x, y: b.y - TOP_BAND, w: b.w, h: b.h + TOP_BAND + BOTTOM_BAND};
+  }
+
+  /* the backyard and front-yard labels, the street, and a compass. Drawn upright (not rotated with the plan),
+     in the empty corner above the bedroom wing */
+  function orientMarkup(house) {
+    const b = houseBox(house, 12), c = compass(house), cap = s => s[0].toUpperCase();
+    const cx = b.x + b.w / 2, bottom = b.y + b.h;
+    let s = `<g class="orient" pointer-events="none" aria-hidden="true">`;
+    s += `<text class="yard" x="${num(cx)}" y="${num(b.y - 14)}" text-anchor="middle">Backyard</text>`;
+    s += `<text class="yard" x="${num(cx)}" y="${num(bottom + 30)}" text-anchor="middle">Front yard</text>`;
+    s += `<rect class="street" x="${num(b.x)}" y="${num(bottom + 50)}" width="${num(b.w)}" height="46" rx="6"/>`;
+    s += `<text class="streetname" x="${num(cx)}" y="${num(bottom + 73)}" dy=".35em" text-anchor="middle">Street</text>`;
+    const r = 30, px = b.x + b.w - 70, py = b.y + 74;
+    s += `<g class="compass" transform="translate(${num(px)},${num(py)})">`;
+    s += `<circle class="ring" r="${r}"/>`;
+    s += `<path class="needle-n" d="M0,${-r + 5} L8,0 L-8,0Z"/><path class="needle-s" d="M0,${r - 5} L8,0 L-8,0Z"/>`;
+    s += `<text class="pt main" y="${-r - 8}" text-anchor="middle">${cap(c.up)}</text>`;
+    s += `<text class="pt" y="${r + 8}" dy=".75em" text-anchor="middle">${cap(c.down)}</text>`;
+    s += `<text class="pt" x="${r + 8}" dy=".35em" text-anchor="start">${cap(c.right)}</text>`;
+    s += `<text class="pt" x="${-r - 8}" dy=".35em" text-anchor="end">${cap(c.left)}</text>`;
+    s += `</g></g>`;
     return s;
   }
 
@@ -226,8 +266,10 @@
    The easiest way to change this file is the drag-and-drop editor (editor.html).
    To edit by hand: every size is in inches. x runs toward the street (the front of the house);
    y runs from the bedroom wing toward the garage. A photo's "dir" is the way the camera faced:
-   0 = toward the street, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing. */
+   0 = toward the street, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing.
+   "front" is the compass direction the front of the house faces; the plan's compass is drawn from it. */
 window.HOUSE = {
+  "front": ${JSON.stringify(house.front || "south")},
   "rooms": [
 ${list(house.rooms, "    ")}
   ],
@@ -244,7 +286,7 @@ ${tour}
 `;
   }
 
-  const api = {R, toScreen, esc, num, pts, tourIndex, arcPath, sideNormal, fixtureDetail, drawOpening, labelAngle, frontDoor, labelsMarkup, planMarkup, screenBox, houseBox, setLabelScale, serialize};
+  const api = {R, toScreen, esc, num, pts, tourIndex, arcPath, sideNormal, fixtureDetail, drawOpening, labelAngle, frontDoor, labelsMarkup, planMarkup, screenBox, houseBox, planBox, compass, orientMarkup, setLabelScale, serialize};
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.PlanDraw = api;
 })(this);

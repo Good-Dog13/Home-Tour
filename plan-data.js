@@ -2,8 +2,10 @@
    The easiest way to change this file is the drag-and-drop editor (editor.html).
    To edit by hand: every size is in inches. x runs toward the street (the front of the house);
    y runs from the bedroom wing toward the garage. A photo's "dir" is the way the camera faced:
-   0 = toward the street, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing. */
+   0 = toward the street, 90 = toward the garage side, 180 = toward the back, -90 = toward the bedroom wing.
+   "front" is the compass direction the front of the house faces; the plan's compass is drawn from it. */
 window.HOUSE = {
+  "front": "south",
   "rooms": [
     {"id": "living-room", "kind": "room", "poly": [[0,0],[158,0],[158,235],[0,235]], "label": [79,118], "lines": ["Living", "Room"]},
     {"id": "foyer", "kind": "room", "poly": [[158,126],[248,126],[248,235],[158,235]], "label": [203,180], "lines": ["Foyer"]},
@@ -12,7 +14,7 @@ window.HOUSE = {
     {"id": "hallway", "kind": "room", "poly": [[84,-51],[291,-51],[291,0],[84,0]], "label": [205,-25], "lines": ["Hallway"], "axis": 0},
     {"id": "hcl1", "kind": "other", "poly": [[188,-77],[240,-77],[240,-51],[188,-51]]},
     {"id": "primary-bedroom", "kind": "room", "poly": [[-84,-216],[84,-216],[84,0],[-84,0]], "label": [0,-108], "lines": ["Primary", "Bedroom"]},
-    {"id": "primary-bathroom", "kind": "room", "poly": [[84,-216],[240,-216],[240,-77],[188,-77],[188,-113],[159,-142],[84,-142]], "label": [154,-170], "lines": ["Primary", "Bath"]},
+    {"id": "primary-bathroom", "kind": "room", "poly": [[84,-216],[240,-216],[240,-77],[188,-77],[188,-113],[159,-142],[84,-142]], "label": [154,-170], "lines": ["Primary", "Bath"], "short": ["Bath"]},
     {"id": "primary-closet", "kind": "room", "poly": [[84,-142],[159,-142],[188,-113],[188,-51],[84,-51]], "label": [130,-97], "lines": ["Primary", "Closet"], "short": ["Closet"]},
     {"id": "bedroom-2", "kind": "room", "poly": [[240,-215],[382,-215],[382,-75],[322,-75],[322,-51],[240,-51]], "label": [300,-138], "lines": ["Bedroom 2"], "short": ["Bedroom", "2"]},
     {"id": "bedroom-3", "kind": "room", "poly": [[291,-51],[382,-51],[382,-36],[433,-36],[433,126],[291,126]], "label": [362,60], "lines": ["Bedroom 3"], "short": ["Bedroom", "3"]},
