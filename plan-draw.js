@@ -68,12 +68,42 @@
     return s;
   }
 
+  /* the inside edge of a shaped tub (a corner tub, say): its outline moved in by k, with corners rounded by r.
+     It assumes the outline has no inward corners, which is true of tubs */
+  function roundedInset(poly, k, r) {
+    const n = poly.length;
+    let area = 0;
+    poly.forEach((p, i) => { const q = poly[(i + 1) % n]; area += p[0] * q[1] - q[0] * p[1]; });
+    const s = area > 0 ? 1 : -1;
+    const lines = poly.map((p, i) => {
+      const q = poly[(i + 1) % n], len = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1, u = [(q[0] - p[0]) / len, (q[1] - p[1]) / len];
+      return {p: [p[0] - s * u[1] * k, p[1] + s * u[0] * k], u};
+    });
+    const corner = poly.map((_, i) => {
+      const A = lines[(i - 1 + n) % n], B = lines[i], c = A.u[0] * B.u[1] - A.u[1] * B.u[0];
+      if (Math.abs(c) < 1e-9) return B.p;
+      const t = ((B.p[0] - A.p[0]) * B.u[1] - (B.p[1] - A.p[1]) * B.u[0]) / c;
+      return [A.p[0] + A.u[0] * t, A.p[1] + A.u[1] * t];
+    });
+    let d = "";
+    corner.forEach((c, i) => {
+      const prev = corner[(i - 1 + n) % n], next = corner[(i + 1) % n];
+      const back = Math.min(r, Math.hypot(c[0] - prev[0], c[1] - prev[1]) / 2), fwd = Math.min(r, Math.hypot(next[0] - c[0], next[1] - c[1]) / 2);
+      const toward = (a, b, L) => { const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; return [a[0] + (b[0] - a[0]) / l * L, a[1] + (b[1] - a[1]) / l * L]; };
+      const p1 = toward(c, prev, back), p2 = toward(c, next, fwd);
+      d += `${i ? "L" : "M"}${num(p1[0])},${num(p1[1])} Q${num(c[0])},${num(c[1])} ${num(p2[0])},${num(p2[1])}`;
+    });
+    return d + "Z";
+  }
+
   /* small drawn details that say what a fixture is: an X for a shower, an inner tub, a bowl, a sink */
   function fixtureDetail(f) {
     const xs = f.poly.map(p => p[0]), ys = f.poly.map(p => p[1]);
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), w = x1 - x0, h = y1 - y0;
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
     if (f.cls === "shower") return `<path class="fxd" d="M${num(x0)},${num(y0)}L${num(x1)},${num(y1)}M${num(x1)},${num(y0)}L${num(x0)},${num(y1)}"/>`;
+    const boxy = f.poly.length === 4 && f.poly.every((p, i) => { const q = f.poly[(i + 1) % 4]; return Math.abs(p[0] - q[0]) < 0.01 || Math.abs(p[1] - q[1]) < 0.01; });
+    if (f.cls === "tub" && !boxy) return `<path class="fxd" d="${roundedInset(f.poly, Math.min(4, w / 5, h / 5), Math.min(w, h) / 5)}"/>`;
     if (f.cls === "tub") { const k = Math.min(4, w / 5, h / 5); return `<rect class="fxd" x="${num(x0 + k)}" y="${num(y0 + k)}" width="${num(w - 2 * k)}" height="${num(h - 2 * k)}" rx="${num(Math.min(w, h) / 3)}"/>`; }
     if (f.cls === "toilet") return `<ellipse class="fxd" cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.36)}" ry="${num(h * 0.36)}"/>`;
     if (f.cls === "vanity2") {
