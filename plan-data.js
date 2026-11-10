@@ -42,7 +42,7 @@ window.HOUSE = {
     {"type": "door", "a": [248,163], "b": [248,199], "side": -1, "hinge": "b", "ext": true, "front": true},
     {"type": "window", "a": [248,199], "b": [248,215], "side": 1, "hinge": "a", "ext": true},
     {"type": "bifold", "a": [187,126], "b": [233,126], "side": 1, "hinge": "a", "ext": false},
-    {"type": "door", "a": [120,-44], "b": [120,-12], "side": -1, "hinge": "a", "ext": false},
+    {"type": "door", "a": [120,-44], "b": [120,-12], "side": -1, "hinge": "b", "ext": false},
     {"type": "door", "a": [164,0], "b": [196,0], "side": 1, "hinge": "b", "ext": false},
     {"type": "double", "a": [179,-51], "b": [225,-51], "side": 1, "hinge": "a", "ext": false},
     {"type": "door", "a": [229,-51], "b": [261,-51], "side": -1, "hinge": "a", "ext": false},
