@@ -195,6 +195,7 @@ kbd{font:600 .8rem var(--body);border:1px solid var(--line);border-bottom-width:
         <option value="op:door">Door</option>
         <option value="op:double">Double doors</option>
         <option value="op:french">French doors (red)</option>
+        <option value="op:pocket">Pocket doors (pair)</option>
         <option value="op:bifold">Bifold doors</option>
         <option value="op:window">Window</option>
         <option value="op:arched">Arched window</option>
@@ -278,7 +279,7 @@ const near = (a, b) => Math.abs(a - b) < TOL;
 const same = (p, q) => near(p[0], q[0]) && near(p[1], q[1]);
 const esc = PD.esc;
 const NAMES = {coat:"Coat closet", b2closet:"Bedroom 2 closet", b3closet:"Bedroom 3 closet", hcl1:"Hall closet", hcl2:"Second hall closet", pantry:"Pantry", garage:"Garage", store:"Storeroom", porch1:"Main porch", porch2:"Kitchen porch"};
-const OPTYPES = {door:["Door",32], double:["Double doors",60], french:["French doors (red)",60], bifold:["Bifold doors",48], window:["Window",36], arched:["Arched window",60], open:["Open wall",48], garage:["Garage door",192]};
+const OPTYPES = {door:["Door",32], double:["Double doors",60], french:["French doors (red)",60], pocket:["Pocket doors (pair)",48], bifold:["Bifold doors",48], window:["Window",36], arched:["Arched window",60], open:["Open wall",48], garage:["Garage door",192]};
 /* fixture: [name, size side to side, size front to back] in inches */
 const FXTYPES = {shower:["Shower",48,36], tub:["Tub",60,30], toilet:["Toilet",20,28], vanity:["Vanity (sink)",48,22], "":["Counter or cabinet",48,24], closet:["Closet or built-in",48,24], col:["Column",10,10]};
 const KINDS = {room:"Room", other:"Closet, storage or garage", outdoor:"Outdoors (porch)"};
@@ -969,16 +970,17 @@ function renderPanel(liveOnly){
     if(t) s += `<div class="group"><h3>Photo spots in this room</h3><div class="spots">${spotsList(t.id)}</div></div>`;
   } else if(sel.k === "op"){
     const o = H.openings[sel.i], w = Math.round(dist(o.a, o.b));
-    const door = ["door", "double", "french", "bifold"].includes(o.type);
+    const door = ["door", "double", "french", "pocket", "bifold"].includes(o.type);
     s += `<div class="group"><h2>${esc(OPTYPES[o.type] ? OPTYPES[o.type][0] : o.type)}</h2><p class="sub">Drag it to slide it along the wall, or drag its circles to resize it.</p></div>
       <div class="group">
       ${field("Type", `<select id="opType">${Object.entries(OPTYPES).map(([k, v]) => `<option value="${k}"${o.type === k ? " selected" : ""}>${v[0]}</option>`).join("")}</select>`)}
       <div class="row">${field("Width in inches", `<input type="number" id="opW" min="6" step="1" value="${w}">`)}<button type="button" class="btn" id="opWApply">Apply</button></div>
       <div class="row">
-        ${door || o.type === "window" || o.type === "arched" ? `<button type="button" class="btn" id="opSide">Swing the other way</button>` : ""}
+        ${(door && o.type !== "pocket") || o.type === "window" || o.type === "arched" ? `<button type="button" class="btn" id="opSide">Swing the other way</button>` : ""}
         ${o.type === "door" ? `<button type="button" class="btn" id="opHinge">Hinge on the other end</button>` : ""}
       </div>
       <label class="tog"><input type="checkbox" id="opExt"${o.ext ? " checked" : ""}> On an outside wall</label>
+      ${door && o.type !== "french" ? `<label class="tog"><input type="checkbox" id="opRed"${o.red ? " checked" : ""}> Red doors</label>` : ""}
       ${o.type === "door" ? `<label class="tog"><input type="checkbox" id="opFront"${o.front ? " checked" : ""}> This is the front door</label>` : ""}
       </div>
       <div class="group"><button type="button" class="btn danger" id="opDel">Remove it</button></div>`;
@@ -1057,6 +1059,7 @@ function wirePanel(){
     on("opSide", "click", () => change(() => { o().side = -o().side; }));
     on("opHinge", "click", () => change(() => { o().hinge = o().hinge === "b" ? "a" : "b"; }));
     on("opExt", "change", e => change(() => { o().ext = e.target.checked; }));
+    on("opRed", "change", e => change(() => { if(e.target.checked) o().red = true; else delete o().red; }));
     on("opFront", "change", e => change(() => { H.openings.forEach(q => delete q.front); if(e.target.checked) o().front = true; }));
     on("opDel", "click", () => change(() => { H.openings.splice(sel.i, 1); sel = null; }));
   } else if(sel.k === "fx"){

@@ -44,16 +44,25 @@
       s += `<line class="gdoor" x1="${num(ax + n[0] * 4)}" y1="${num(ay + n[1] * 4)}" x2="${num(bx + n[0] * 4)}" y2="${num(by + n[1] * 4)}"/>`;
     } else if (o.type === "bifold") {
       const q = len / 4, p1 = add([ax + u[0] * q, ay + u[1] * q], 9), p2 = [ax + u[0] * 2 * q, ay + u[1] * 2 * q], p3 = add([ax + u[0] * 3 * q, ay + u[1] * 3 * q], 9);
-      s += `<path class="leaf" d="M${ax},${ay}L${num(p1[0])},${num(p1[1])}L${num(p2[0])},${num(p2[1])}L${num(p3[0])},${num(p3[1])}L${bx},${by}"/>`;
+      s += `<path class="${o.red ? "leaf red" : "leaf"}" d="M${ax},${ay}L${num(p1[0])},${num(p1[1])}L${num(p2[0])},${num(p2[1])}L${num(p3[0])},${num(p3[1])}L${bx},${by}"/>`;
+    } else if (o.type === "pocket") {
+      /* a pair of pocket doors: each leaf slides into a slot in the wall on its own side of the opening */
+      const half = len / 2, cls = o.red ? "leaf red" : "leaf", nl = Math.hypot(n[0], n[1]) || 1, m = [n[0] / nl * 1.8, n[1] / nl * 1.8];
+      for (const [h, sg] of [[o.a, -1], [o.b, 1]]) {
+        const d = [u[0] * sg, u[1] * sg], far = [h[0] + d[0] * half, h[1] + d[1] * half];
+        s += `<path class="gap int" d="${pts([[h[0] + m[0], h[1] + m[1]], [far[0] + m[0], far[1] + m[1]], [far[0] - m[0], far[1] - m[1]], [h[0] - m[0], h[1] - m[1]]])}"/>`;
+        const in1 = [far[0] - d[0] * 2, far[1] - d[1] * 2], out1 = [h[0] - d[0] * half * 0.3, h[1] - d[1] * half * 0.3];
+        s += `<line class="${cls}" x1="${num(in1[0])}" y1="${num(in1[1])}" x2="${num(out1[0])}" y2="${num(out1[1])}"/>`;
+      }
     } else if (o.type === "double" || o.type === "french") {
-      const half = len / 2, mid = [(ax + bx) / 2, (ay + by) / 2], cls = o.type === "french" ? "leaf red" : "leaf";
+      const half = len / 2, mid = [(ax + bx) / 2, (ay + by) / 2], cls = o.type === "french" || o.red ? "leaf red" : "leaf";
       for (const h of [o.a, o.b]) {
         const l = add(h, half);
         s += `<line class="${cls}" x1="${h[0]}" y1="${h[1]}" x2="${num(l[0])}" y2="${num(l[1])}"/><path class="arc" d="${arcPath(h, mid, l, half)}"/>`;
       }
     } else {
       const h = o.hinge === "b" ? o.b : o.a, f = o.hinge === "b" ? o.a : o.b, l = add(h, len);
-      s += `<line class="leaf" x1="${h[0]}" y1="${h[1]}" x2="${num(l[0])}" y2="${num(l[1])}"/><path class="arc" d="${arcPath(h, f, l, len)}"/>`;
+      s += `<line class="${o.red ? "leaf red" : "leaf"}" x1="${h[0]}" y1="${h[1]}" x2="${num(l[0])}" y2="${num(l[1])}"/><path class="arc" d="${arcPath(h, f, l, len)}"/>`;
     }
     if (tag) s = `<g class="op" data-k="op" data-i="${i}">${s}<line class="hit" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}"/></g>`;
     return s;
