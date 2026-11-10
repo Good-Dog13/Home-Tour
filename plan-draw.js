@@ -76,6 +76,11 @@
     if (f.cls === "shower") return `<path class="fxd" d="M${num(x0)},${num(y0)}L${num(x1)},${num(y1)}M${num(x1)},${num(y0)}L${num(x0)},${num(y1)}"/>`;
     if (f.cls === "tub") { const k = Math.min(4, w / 5, h / 5); return `<rect class="fxd" x="${num(x0 + k)}" y="${num(y0 + k)}" width="${num(w - 2 * k)}" height="${num(h - 2 * k)}" rx="${num(Math.min(w, h) / 3)}"/>`; }
     if (f.cls === "toilet") return `<ellipse class="fxd" cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.36)}" ry="${num(h * 0.36)}"/>`;
+    if (f.cls === "vanity2") {
+      /* double vanity: two sinks spaced along its long side */
+      const r = Math.min(w, h) * 0.28, along = w >= h;
+      return [0.27, 0.73].map(k => `<ellipse class="fxd" cx="${num(along ? x0 + w * k : cx)}" cy="${num(along ? cy : y0 + h * k)}" rx="${num(along ? r * 1.25 : r)}" ry="${num(along ? r : r * 1.25)}"/>`).join("");
+    }
     if (f.cls === "vanity") { const r = Math.min(w, h) * 0.3; return `<ellipse class="fxd" cx="${num(cx)}" cy="${num(cy)}" rx="${num(w >= h ? r * 1.3 : r)}" ry="${num(w >= h ? r : r * 1.3)}"/>`; }
     return "";
   }
