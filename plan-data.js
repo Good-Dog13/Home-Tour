@@ -14,10 +14,10 @@ window.HOUSE = {
     {"id": "primary-bedroom", "kind": "room", "poly": [[-84,-216],[84,-216],[84,0],[-84,0]], "label": [0,-108], "lines": ["Primary", "Bedroom"]},
     {"id": "primary-bathroom", "kind": "room", "poly": [[84,-216],[240,-216],[240,-77],[188,-77],[188,-113],[159,-142],[84,-142]], "label": [154,-170], "lines": ["Primary", "Bath"]},
     {"id": "primary-closet", "kind": "room", "poly": [[84,-142],[159,-142],[188,-113],[188,-51],[84,-51]], "label": [130,-97], "lines": ["Primary", "Closet"], "short": ["Closet"]},
-    {"id": "bedroom-2", "kind": "room", "poly": [[240,-215],[382,-215],[382,-66],[322,-66],[322,-51],[240,-51]], "label": [300,-138], "lines": ["Bedroom 2"], "short": ["Bedroom", "2"]},
-    {"id": "bedroom-3", "kind": "room", "poly": [[291,-51],[322,-51],[322,-36],[382,-36],[382,-51],[433,-51],[433,126],[291,126]], "label": [362,60], "lines": ["Bedroom 3"], "short": ["Bedroom", "3"]},
+    {"id": "bedroom-2", "kind": "room", "poly": [[240,-215],[382,-215],[382,-75],[322,-75],[322,-51],[240,-51]], "label": [300,-138], "lines": ["Bedroom 2"], "short": ["Bedroom", "2"]},
+    {"id": "bedroom-3", "kind": "room", "poly": [[291,-51],[382,-51],[382,-36],[433,-36],[433,126],[291,126]], "label": [362,60], "lines": ["Bedroom 3"], "short": ["Bedroom", "3"]},
     {"id": "b3closet", "kind": "other", "poly": [[257,37],[291,37],[291,126],[257,126]]},
-    {"id": "b2closet", "kind": "other", "poly": [[322,-66],[382,-66],[382,-36],[322,-36]]},
+    {"id": "b2closet", "kind": "other", "poly": [[322,-75],[382,-75],[382,-51],[322,-51]]},
     {"id": "hcl2", "kind": "other", "poly": [[224,0],[291,0],[291,37],[257,37],[257,28],[224,28]]},
     {"id": "dining-area", "kind": "room", "poly": [[-138,235],[60,235],[60,385],[-138,385]], "label": [-40,310], "lines": ["Dining", "Area"], "short": ["Dining"]},
     {"id": "kitchen", "kind": "room", "poly": [[60,235],[216,235],[216,325],[192,325],[192,381],[216,381],[216,515],[60,515]], "label": [132,440], "lines": ["Kitchen"]},
@@ -73,7 +73,7 @@ window.HOUSE = {
     {"type": "window", "a": [298,605], "b": [337,605], "side": -1, "hinge": "a", "ext": true},
     {"type": "door", "a": [216,542], "b": [216,578], "side": -1, "hinge": "b", "ext": false},
     {"type": "double", "a": [159,-142], "b": [188,-113], "side": -1, "hinge": "a", "ext": false},
-    {"type": "double", "a": [328,-66], "b": [376,-66], "side": -1, "hinge": "a", "ext": false},
+    {"type": "double", "a": [328,-75], "b": [376,-75], "side": -1, "hinge": "a", "ext": false},
     {"type": "window", "a": [120,605], "b": [156,605], "side": -1, "hinge": "a", "ext": true}
   ],
   "fixtures": [
