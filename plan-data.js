@@ -14,10 +14,10 @@ window.HOUSE = {
     {"id": "primary-bedroom", "kind": "room", "poly": [[-84,-216],[84,-216],[84,0],[-84,0]], "label": [0,-108], "lines": ["Primary", "Bedroom"]},
     {"id": "primary-bathroom", "kind": "room", "poly": [[84,-216],[240,-216],[240,-77],[188,-77],[188,-113],[159,-142],[84,-142]], "label": [154,-170], "lines": ["Primary", "Bath"]},
     {"id": "primary-closet", "kind": "room", "poly": [[84,-142],[159,-142],[188,-113],[188,-51],[84,-51]], "label": [130,-97], "lines": ["Primary", "Closet"], "short": ["Closet"]},
-    {"id": "bedroom-2", "kind": "room", "poly": [[240,-215],[433,-215],[433,-66],[373,-66],[373,-51],[240,-51]], "label": [345,-133], "lines": ["Bedroom 2"], "short": ["Bedroom", "2"]},
-    {"id": "bedroom-3", "kind": "room", "poly": [[291,-51],[373,-51],[373,-36],[433,-36],[433,126],[291,126]], "label": [362,60], "lines": ["Bedroom 3"], "short": ["Bedroom", "3"]},
+    {"id": "bedroom-2", "kind": "room", "poly": [[240,-215],[382,-215],[382,-66],[322,-66],[322,-51],[240,-51]], "label": [300,-138], "lines": ["Bedroom 2"], "short": ["Bedroom", "2"]},
+    {"id": "bedroom-3", "kind": "room", "poly": [[291,-51],[322,-51],[322,-36],[382,-36],[382,-51],[433,-51],[433,126],[291,126]], "label": [362,60], "lines": ["Bedroom 3"], "short": ["Bedroom", "3"]},
     {"id": "b3closet", "kind": "other", "poly": [[257,37],[291,37],[291,126],[257,126]]},
-    {"id": "b2closet", "kind": "other", "poly": [[373,-66],[433,-66],[433,-36],[373,-36]]},
+    {"id": "b2closet", "kind": "other", "poly": [[322,-66],[382,-66],[382,-36],[322,-36]]},
     {"id": "hcl2", "kind": "other", "poly": [[224,0],[291,0],[291,37],[257,37],[257,28],[224,28]]},
     {"id": "dining-area", "kind": "room", "poly": [[-138,235],[60,235],[60,385],[-138,385]], "label": [-40,310], "lines": ["Dining", "Area"], "short": ["Dining"]},
     {"id": "kitchen", "kind": "room", "poly": [[60,235],[216,235],[216,325],[192,325],[192,381],[216,381],[216,515],[60,515]], "label": [132,440], "lines": ["Kitchen"]},
@@ -52,7 +52,7 @@ window.HOUSE = {
     {"type": "window", "a": [-84,-90], "b": [-84,-54], "side": 1, "hinge": "a", "ext": true},
     {"type": "door", "a": [84,-192], "b": [84,-160], "side": 1, "hinge": "b", "ext": false},
     {"type": "window", "a": [180,-216], "b": [228,-216], "side": 1, "hinge": "a", "ext": true},
-    {"type": "window", "a": [433,-120], "b": [433,-80], "side": -1, "hinge": "a", "ext": true},
+    {"type": "window", "a": [382,-120], "b": [382,-80], "side": -1, "hinge": "a", "ext": true},
     {"type": "arched", "a": [433,10], "b": [433,70], "side": -1, "hinge": "a", "ext": true},
     {"type": "window", "a": [349,126], "b": [385,126], "side": -1, "hinge": "a", "ext": true},
     {"type": "bifold", "a": [291,88], "b": [291,124], "side": 1, "hinge": "a", "ext": false},
@@ -73,7 +73,7 @@ window.HOUSE = {
     {"type": "window", "a": [298,605], "b": [337,605], "side": -1, "hinge": "a", "ext": true},
     {"type": "door", "a": [216,542], "b": [216,578], "side": -1, "hinge": "b", "ext": false},
     {"type": "double", "a": [159,-142], "b": [188,-113], "side": -1, "hinge": "a", "ext": false},
-    {"type": "double", "a": [379,-66], "b": [427,-66], "side": -1, "hinge": "a", "ext": false},
+    {"type": "double", "a": [328,-66], "b": [376,-66], "side": -1, "hinge": "a", "ext": false},
     {"type": "window", "a": [120,605], "b": [156,605], "side": -1, "hinge": "a", "ext": true}
   ],
   "fixtures": [
@@ -149,8 +149,8 @@ window.HOUSE = {
     {"id": "bedroom-2", "name": "Bedroom 2", "photos": [
       {"f": "bedroom-2-1", "x": 271, "y": -64, "dir": -75, "cap": "Looking in from the door"},
       {"f": "bedroom-2-2", "x": 281, "y": -110, "dir": 5, "cap": "The big window"},
-      {"f": "bedroom-2-3", "x": 396, "y": -170, "dir": 95, "cap": "The closet and the door to the hall"},
-      {"f": "bedroom-2-4", "x": 385, "y": -140, "dir": 100, "cap": "The closet, open"}
+      {"f": "bedroom-2-3", "x": 355, "y": -170, "dir": 95, "cap": "The closet and the door to the hall"},
+      {"f": "bedroom-2-4", "x": 347, "y": -140, "dir": 100, "cap": "The closet, open"}
     ]},
     {"id": "bedroom-3", "name": "Bedroom 3", "photos": [
       {"f": "bedroom-3-4", "x": 318, "y": -15, "dir": 40, "cap": "Looking in from the hall"},
