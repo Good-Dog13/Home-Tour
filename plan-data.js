@@ -35,7 +35,7 @@ window.HOUSE = {
     {"type": "window", "a": [0,105], "b": [0,141], "side": 1, "hinge": "a", "ext": true},
     {"type": "window", "a": [0,147], "b": [0,183], "side": 1, "hinge": "a", "ext": true},
     {"type": "door", "a": [0,202], "b": [0,234], "side": 1, "hinge": "b", "ext": true},
-    {"type": "french", "a": [126,0], "b": [158,0], "side": 1, "hinge": "a", "ext": false},
+    {"type": "french", "a": [90,0], "b": [150,0], "side": 1, "hinge": "a", "ext": false},
     {"type": "open", "a": [15,235], "b": [216,235], "side": 1, "hinge": "a", "ext": false},
     {"type": "open", "a": [158,126], "b": [158,235], "side": 1, "hinge": "a", "ext": false},
     {"type": "window", "a": [248,147], "b": [248,163], "side": 1, "hinge": "a", "ext": true},
